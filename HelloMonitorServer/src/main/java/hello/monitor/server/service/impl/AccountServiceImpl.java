@@ -1,4 +1,4 @@
-package hello.monitor.server.service.Impl;
+package hello.monitor.server.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;

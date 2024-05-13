@@ -1,7 +1,7 @@
 package hello.monitor.server.config;
 
-import hello.monitor.server.Fileter.JwtFilter;
-import hello.monitor.server.Fileter.LogRequestFilter;
+import hello.monitor.server.fileter.JwtFilter;
+import hello.monitor.server.fileter.LogRequestFilter;
 import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.dto.Account;
 import hello.monitor.server.entity.vo.response.AuthorizeVO;
@@ -66,6 +66,7 @@ public class SecurityConfiguration {
         return security
                 //访问权限
                 .authorizeHttpRequests(conf -> {
+                    conf.requestMatchers("/monitor/**").permitAll();
                     conf.requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/images/**").permitAll();
                     conf.anyRequest().authenticated();
                 })
