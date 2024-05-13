@@ -18,7 +18,7 @@ import java.util.Scanner;
 
 @Slf4j
 @Configuration
-public class ServerConfiguration {
+public class ServerConfiguration{
     @Resource
     private NetUtils netUtils;
     @Resource
