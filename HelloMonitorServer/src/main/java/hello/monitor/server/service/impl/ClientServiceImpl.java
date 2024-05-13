@@ -68,6 +68,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
         for (int i = 0; i < 24; i++) {
             token.append(chars.charAt(random.nextInt(chars.length())));
         }
+        System.out.println(token);
         return token.toString();
     }
 }
