@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import hello.monitor.server.entity.dto.Client;
 import hello.monitor.server.entity.dto.ClientDetail;
 import hello.monitor.server.entity.vo.request.ClientDetailVO;
+import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
 import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
 import hello.monitor.server.service.ClientService;
@@ -14,10 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -69,6 +67,13 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
         } else {
             detailMapper.insert(detail);
         }
+    }
+
+    private Map<Integer,RuntimeDetailVO> runtimeDetail = new HashMap<>();
+
+    @Override
+    public void updateClientRuntimeDetails(Client client, RuntimeDetailVO vo) {
+        runtimeDetail.put(client.getId(), vo);
     }
 
     @PostConstruct

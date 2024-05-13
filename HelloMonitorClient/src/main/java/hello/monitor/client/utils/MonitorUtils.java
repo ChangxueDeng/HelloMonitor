@@ -10,13 +10,12 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.software.os.OperatingSystem;
+import oshi.util.FormatUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.NetworkInterface;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -52,7 +51,7 @@ public class MonitorUtils {
             double write = hardware.getDiskStores().stream().mapToLong(HWDiskStore::getReadBytes).sum();
             long[] systemCpuLoadTicks = processor.getSystemCpuLoadTicks();
             Thread.sleep((long) (statisticTime * 1000));
-            networkInterFace = Objects.requireNonNull(this.findNetworkInterface(hardware));;
+            networkInterFace = Objects.requireNonNull(this.findNetworkInterface(hardware));
             upload = (networkInterFace.getBytesSent() - upload) / statisticTime;
             download = (networkInterFace.getBytesRecv() - download) / statisticTime;
             read = (hardware.getDiskStores().stream().mapToLong(HWDiskStore::getReadBytes).sum() - read) / statisticTime;
@@ -89,14 +88,29 @@ public class MonitorUtils {
     }
     private NetworkIF findNetworkInterface(HardwareAbstractionLayer hardware) {
         try {
-            for (NetworkIF network : hardware.getNetworkIFs()) {
+            ArrayList<NetworkIF> preNet = new ArrayList<>();
+            for (int i = 0; i < hardware.getNetworkIFs().size(); i++) {
+                NetworkIF network = hardware.getNetworkIFs().get(i);
                 String[] ipv4 = network.getIPv4addr();
                 NetworkInterface ni = network.queryNetworkInterface();
-                if (!ni.isLoopback() && !ni.isPointToPoint() && ni.isUp() && !ni.isVirtual()
-                        && (ni.getName()).startsWith("eth") || ni.getName().startsWith("en") && ipv4.length > 0) {
-                    return network;
+                boolean check = ipv4.length > 0 && ni.isUp() && !ni.isVirtual() && !ni.isLoopback() && !ni.isVirtual() && !ni.isPointToPoint()
+                        && (ni.getName().startsWith("wlan") || ni.getName().startsWith("eth") || ni.getName().startsWith("en"));
+                if (check) {
+                    //寻找接受数据最大的网卡
+                    if (network.getBytesRecv() > 0|| network.getBytesSent() > 0) {
+                        if (!preNet.isEmpty() && network.getBytesRecv() > preNet.get(0).getBytesRecv()) {
+                            preNet.add(0, network);
+                        }else {
+                            preNet.add(network);
+                        }
+                    }
+                    else {
+                        preNet.add(network);
+                    }
                 }
             }
+//            System.out.println("大小: " + preNet.size() + " : " + preNet.get(0));
+            return preNet.get(0);
         }catch (IOException e) {
             log.error("读取网络接口信息出错", e);
         }

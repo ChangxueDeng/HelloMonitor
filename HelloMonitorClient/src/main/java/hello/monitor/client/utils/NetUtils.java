@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSONObject;
 import hello.monitor.client.entity.BaseDetail;
 import hello.monitor.client.entity.ConnectionConfig;
 import hello.monitor.client.entity.Response;
+import hello.monitor.client.entity.RuntimeDetail;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -43,6 +44,14 @@ public class NetUtils {
             log.info("客户端更新基本信息完成!");
         } else {
             log.error("客户端更新基本信息失败:{}", response.message());
+        }
+    }
+    public void updateRuntimeDetail(RuntimeDetail runtimeDetail) {
+        Response response = this.doPost("/runtime", runtimeDetail);
+        if (response.success()) {
+            log.info("客户端更新实时信息完成!");
+        } else {
+            log.error("客户端更新实时信息失败:{}", response.message());
         }
     }
     private Response doGet(String url) {

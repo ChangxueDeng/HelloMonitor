@@ -4,6 +4,7 @@ package hello.monitor.server.controller;
 import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.dto.Client;
 import hello.monitor.server.entity.vo.request.ClientDetailVO;
+import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
 import hello.monitor.server.service.ClientService;
 import hello.monitor.server.utils.Const;
 import hello.monitor.server.utils.ControllerUtils;
@@ -30,6 +31,12 @@ public class ClientController {
     public Result<Void> updateClientDetails(@RequestAttribute(Const.CLIENT)Client client,
                                             @RequestBody @Valid ClientDetailVO vo) {
         clientService.updateClientDetail(client, vo);
+        return Result.success();
+    }
+    @PostMapping("/runtime")
+    public Result<Void> updateClientRuntimeDetails(@RequestAttribute(Const.CLIENT)Client client,
+                                                   @RequestBody @Valid RuntimeDetailVO vo) {
+        clientService.updateClientRuntimeDetails(client, vo);
         return Result.success();
     }
 }
