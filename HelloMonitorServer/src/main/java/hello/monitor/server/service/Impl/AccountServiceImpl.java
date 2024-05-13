@@ -3,7 +3,6 @@ package hello.monitor.server.service.Impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import hello.monitor.server.entity.dto.Account;
-import hello.monitor.server.entity.vo.request.RegisterVO;
 import hello.monitor.server.entity.vo.request.ResetConfirmVO;
 import hello.monitor.server.entity.vo.request.ResetPasswordVO;
 import hello.monitor.server.mapper.AccountMapper;
@@ -71,7 +70,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public String emailVerify(String email, String type, String ip) {
         //使用ip作为锁
         synchronized (ip.intern()) {
-            if (isLimitedEmail(email)) return "请求频繁";
+            if (isLimitedEmail(email)) {
+                return "请求频繁";
+            }
             //生成验证码
             Random random = new Random();
             int code = random.nextInt(900000) + 100000;
@@ -91,29 +92,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
      */
     private boolean isLimitedEmail(String ip){
         String key = Const.LIMIT_EMAIL + ip;
-        if (flowUtils.limitOnce(key, 60)) return true;
-        return false;
+        return flowUtils.limitOnce(key, 60);
     }
 
-    @Override
-    public String registerAccount(RegisterVO registerVO) {
-        String username = registerVO.getUsername();
-        String email = registerVO.getEmail();
-        String password = passwordEncoder.encode(registerVO.getPassword());
-        String code = registerVO.getCode();
-        if (Boolean.FALSE.equals(stringRedisTemplate.hasKey(Const.LIMIT_EMAIL_DATA + email)))
-            return "验证码失效，请重新发送";
-        if (!Objects.equals(stringRedisTemplate.opsForValue().get(Const.LIMIT_EMAIL_DATA + email), code))
-            return "验证码错误";
-        if (existAccountByEmail(email))
-            return "电子邮件地址已存在";
-        if (existAccountByUsername(username))
-            return "用户名已被占用";
-        Account account = new Account(null, username, password, email, "user", new Date());
-        this.save(account);
-        stringRedisTemplate.delete(Const.LIMIT_EMAIL_DATA + email);
-        return null;
-    }
 
     private boolean existAccountByUsername(String username) {
         return this.query().eq("username", username).exists();
@@ -125,8 +106,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     public String resetPassword(ResetPasswordVO resetPasswordVO) {
-        if(resetConfirm(new ResetConfirmVO(resetPasswordVO.getEmail(), resetPasswordVO.getCode())) != null)
+        if(resetConfirm(new ResetConfirmVO(resetPasswordVO.getEmail(), resetPasswordVO.getCode())) != null) {
             return "验证状态已失效";
+        }
         String password = passwordEncoder.encode(resetPasswordVO.getPassword());
         boolean update = this.update().eq("email", resetPasswordVO.getEmail()).set("password", password).update();
         if (update) {
@@ -140,10 +122,16 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public String resetConfirm(ResetConfirmVO resetConfirmVO) {
         String email = resetConfirmVO.getEmail();
         String code = resetConfirmVO.getCode();
-        if (!existAccountByEmail(email)) return "账户不存在";
+        if (!existAccountByEmail(email)) {
+            return "账户不存在";
+        }
         String verify = getEmailVerify(Const.LIMIT_EMAIL_DATA + email);
-        if (verify == null) return "验证码未发送";
-        if (!verify.equals(code)) return "验证码错误";
+        if (verify == null) {
+            return "验证码未发送";
+        }
+        if (!verify.equals(code)) {
+            return "验证码错误";
+        }
         return null;
     }
 

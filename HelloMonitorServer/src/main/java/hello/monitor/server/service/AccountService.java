@@ -35,13 +35,6 @@ public interface AccountService extends IService<Account> {
     String emailVerify(String email, String type, String ip);
 
     /**
-     * 进行用户注册
-     * @param registerVO 注册参数
-     * @return {@link String}
-     */
-    String registerAccount(RegisterVO registerVO);
-
-    /**
      * 进行重置密码时进行邮箱校验
      * @param resetConfirmVO 校验参数
      * @return {@link String}

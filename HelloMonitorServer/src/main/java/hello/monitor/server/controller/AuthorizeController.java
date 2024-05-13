@@ -44,23 +44,9 @@ public class AuthorizeController {
     @PostMapping("/ask-code")
     @Operation(summary = "发送验证码", description = "发送指定类型验证码到指定收件邮箱")
     public Result<String> sendEmailVerify(@Parameter(description = "验证码接收邮箱") @Email @RequestParam String email,
-                                          @Parameter(description = "验证码类型，分为register,reset和modify三种") @Pattern (regexp = "register|reset|modify")@RequestParam String type,
+                                          @Parameter(description = "验证码类型reset或modify") @Pattern (regexp = "reset|modify")@RequestParam String type,
                                           @Parameter(description = "HttpServletRequest") HttpServletRequest request) {
         return controllerUtils.messageHandler(()-> accountServiceImpl.emailVerify(email, type, request.getRemoteAddr()));
-    }
-
-    /**
-     * 进行用户注册
-     * @param registerVO 接受注册参数
-     * @return {@link Result}<{@link String}
-     */
-    @Operation(summary = "用户注册", description = "进行新用户注册")
-    @PostMapping("/register")
-    public Result<String> register(
-            @Parameter(description = "注册信息",
-                    content = @Content(schema = @Schema(implementation = RegisterVO.class)))
-            @Valid @RequestBody RegisterVO registerVO) {
-        return controllerUtils.messageHandler(()-> accountServiceImpl.registerAccount(registerVO));
     }
 
     /**
