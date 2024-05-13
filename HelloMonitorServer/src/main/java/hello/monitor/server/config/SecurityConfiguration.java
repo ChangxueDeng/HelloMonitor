@@ -156,7 +156,7 @@ public class SecurityConfiguration {
                 String token = request.getHeader(Const.HEAD_TOKEN);
                 //将token加入黑名单
                 jwtUtils.invalidateJwtToken(token);
-                response.getWriter().write(Result.success("退出登陆成功").toJsonString());
+                response.getWriter().write(Result.success().toJsonString());
             }
         };
     }
