@@ -2,6 +2,7 @@ package hello.monitor.client.config;
 
 import com.alibaba.fastjson2.JSONObject;
 import hello.monitor.client.entity.ConnectionConfig;
+import hello.monitor.client.utils.MonitorUtils;
 import hello.monitor.client.utils.NetUtils;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,8 @@ import java.util.Scanner;
 public class ServerConfiguration {
     @Resource
     private NetUtils netUtils;
-
+    @Resource
+    private MonitorUtils monitorUtils;
     @Bean
     ConnectionConfig connectionConfig() {
         log.info("正在加载服务端连接配置...");
@@ -28,6 +30,7 @@ public class ServerConfiguration {
         if (config == null) {
             config = this.registerToServer();
         }
+        System.out.println(monitorUtils.monitorBaseDetail());
         return config;
     }
     private ConnectionConfig registerToServer() {
