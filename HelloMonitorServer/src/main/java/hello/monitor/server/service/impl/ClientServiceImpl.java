@@ -5,6 +5,7 @@ import hello.monitor.server.entity.dto.Client;
 import hello.monitor.server.entity.dto.ClientDetail;
 import hello.monitor.server.entity.vo.request.ClientDetailVO;
 import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
+import hello.monitor.server.entity.vo.response.ClientPreviewVO;
 import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
 import hello.monitor.server.service.ClientService;
@@ -79,6 +80,22 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     public void updateClientRuntimeDetails(Client client, RuntimeDetailVO vo) {
         runtimeDetail.put(client.getId(), vo);
         influxDbUtils.writeRuntime(client.getId(), vo);
+    }
+
+    @Override
+    public List<ClientPreviewVO> getClientList() {
+        return clientIdCache.values().stream().map(client -> {
+            ClientPreviewVO vo = new ClientPreviewVO();
+            BeanUtils.copyProperties(client, vo);
+            BeanUtils.copyProperties(detailMapper.selectById(client.getId()), vo);
+            RuntimeDetailVO runtime = runtimeDetail.get(client.getId());
+            //在线
+            if (runtime != null && System.currentTimeMillis() - runtime.getTimestamp() < 1000 * 60) {
+                BeanUtils.copyProperties(runtime, vo);
+                vo.setOnline(true);
+            }
+            return vo;
+        }).toList();
     }
 
     @PostConstruct

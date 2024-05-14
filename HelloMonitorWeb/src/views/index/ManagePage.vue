@@ -1,6 +1,20 @@
 <script setup>
 
 import PreviewCard from "@/components/PreviewCard.vue";
+import {ref} from "vue";
+import {get} from "@/net/index.js";
+
+const list = ref([])
+
+function getList(){
+  get('api/monitor/list',(data)=> {
+    list.value = data
+  })
+}
+
+getList()
+setInterval(getList,10000)
+
 </script>
 
 <template>
@@ -9,9 +23,7 @@ import PreviewCard from "@/components/PreviewCard.vue";
     <div class="desc">在这里管理所有主机实例</div>
     <el-divider style="margin: 10px 0"></el-divider>
     <div class="server-list">
-      <preview-card></preview-card>
-      <preview-card></preview-card>
-      <preview-card></preview-card>
+      <preview-card v-for="item in list" :data="item"></preview-card>
     </div>
 
   </div>

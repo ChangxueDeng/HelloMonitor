@@ -68,7 +68,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(conf -> {
                     conf.requestMatchers("/monitor/**").permitAll();
                     conf.requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/images/**").permitAll();
-                    conf.anyRequest().authenticated();
+                    conf.anyRequest().hasAnyRole("admin");
                 })
                 //csrf
                 .csrf(AbstractHttpConfigurer::disable)
