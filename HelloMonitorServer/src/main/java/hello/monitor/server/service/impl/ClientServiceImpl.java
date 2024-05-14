@@ -28,7 +28,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     InfluxDbUtils influxDbUtils;
 
     private String registerToken = this.generateNewToken();
-
+    private final int TOKEN_LENGTH = 24;
     private final Map<Integer, Client> clientIdCache = new ConcurrentHashMap<>();
     private final Map<String, Client> clientTokenCache = new ConcurrentHashMap<>();
 
@@ -95,8 +95,8 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     private String generateNewToken() {
         String chars = Const.TOKEN_CHARS;
         SecureRandom random = new SecureRandom();
-        StringBuilder token = new StringBuilder(24);
-        for (int i = 0; i < 24; i++) {
+        StringBuilder token = new StringBuilder(TOKEN_LENGTH);
+        for (int i = 0; i < TOKEN_LENGTH; i++) {
             token.append(chars.charAt(random.nextInt(chars.length())));
         }
         System.out.println(token);

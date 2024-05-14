@@ -22,7 +22,19 @@ const routes = [
     {
         path: '/index',
         name: 'index',
-        component: () => import("@/views/IndexPage.vue")
+        component: () => import("@/views/IndexPage.vue"),
+        children: [
+            {
+                path: '',
+                name: 'manage',
+                component: () => import("@/views/index/ManagePage.vue")
+            },
+            {
+                path: 'security',
+                name: 'security',
+                component: ()=> import("@/views/index/SecurityPage.vue")
+            }
+        ]
     }
 ]
 
