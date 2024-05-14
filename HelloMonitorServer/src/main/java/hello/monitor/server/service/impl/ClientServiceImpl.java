@@ -9,6 +9,7 @@ import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
 import hello.monitor.server.service.ClientService;
 import hello.monitor.server.utils.Const;
+import hello.monitor.server.utils.InfluxDbUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
@@ -23,6 +24,9 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
 
     @Resource
     ClientDetailMapper detailMapper;
+    @Resource
+    InfluxDbUtils influxDbUtils;
+
     private String registerToken = this.generateNewToken();
 
     private final Map<Integer, Client> clientIdCache = new ConcurrentHashMap<>();
@@ -74,6 +78,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     @Override
     public void updateClientRuntimeDetails(Client client, RuntimeDetailVO vo) {
         runtimeDetail.put(client.getId(), vo);
+        influxDbUtils.writeRuntime(client.getId(), vo);
     }
 
     @PostConstruct

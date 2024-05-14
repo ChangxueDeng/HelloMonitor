@@ -6,6 +6,9 @@ import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * @author ChangxueDeng
+ */
 @Configuration
 @Slf4j
 public class QuartzConfiguration {

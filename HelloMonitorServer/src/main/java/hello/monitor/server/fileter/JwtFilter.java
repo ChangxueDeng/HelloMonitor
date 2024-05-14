@@ -38,6 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 Client client = clientService.findClientByToken(headToken);
                 if (client == null) {
                     response.setStatus(401);
+                    response.setCharacterEncoding("UTF-8");
                     response.getWriter().write(Result.failure(401, "未注册").toJsonString());
                 } else {
                     request.setAttribute(Const.CLIENT, client);

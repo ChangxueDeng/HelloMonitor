@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
+/**
+ * @author ChangxueDeng
+ */
 @Slf4j
 @Configuration
 public class ServerConfiguration{
