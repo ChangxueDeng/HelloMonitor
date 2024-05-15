@@ -1,8 +1,30 @@
 <script setup>
 import {findByUnit} from "@/tools/tools.js"
+import {useClipboard} from "@vueuse/core";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {post} from "@/net/index.js";
 const props = defineProps({
-  data: Object
+  data: Object,
+  update: Function
 })
+const {copy} = useClipboard()
+const copyIp = ()=> copy(props.data.ip).then(() => {ElMessage.success("复制成功")})
+function rename() {
+  ElMessageBox.prompt('请输入新的服务器主机名称', '修改名称', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    inputPattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]{1,10}$/,
+    inputErrorMessage: '请输入正确的名称,名称只能保护中英文字符、数字和下划线',
+    inputValue: props.data.name,
+  }).then(({value}) => post('/api/monitor/rename', {
+    id: props.data.id, name: value
+  }, ()=> {
+    ElMessage.success("修改成功")
+    props.update()
+  }, ()=> {
+    ElMessage.error("修改失败")
+  }))
+}
 </script>
 
 <template>
@@ -11,7 +33,7 @@ const props = defineProps({
       <div>
         <div class="name">
           <span :class="`flag-icon flag-icon-${data.location}`"></span>
-          {{data.name}} <i class="fa-regular fa-pen-to-square"></i>
+          {{data.name}} <i class="fa-regular fa-pen-to-square interact-item" @click.stop="rename"></i>
         </div>
         <div class="os">操作系统: {{data.osName}} {{data.osVersion}}</div>
       </div>
@@ -27,7 +49,7 @@ const props = defineProps({
     <el-divider style="margin: 10px 0"></el-divider>
     <div class="network">
       <span>公网IP: {{data.ip}}</span>
-      <i class="fa-solid fa-copy" style="margin-left: 2px"></i>
+      <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp"></i>
     </div>
 
     <div class="hardware">
@@ -87,12 +109,6 @@ const props = defineProps({
   }
   .network{
     font-size: 14px;
-    .fa-copy{
-      &:hover{
-        cursor: pointer;
-        color: dodgerblue;
-      }
-    }
   }
   .hardware{
     margin-top: 5px;
@@ -107,6 +123,15 @@ const props = defineProps({
     font-size: 12px;
     display: flex;
     justify-content: space-between;
+  }
+}
+.interact-item{
+  transition: .3s;
+  &:hover{
+    cursor: pointer;
+    color: dodgerblue;
+    scale: 1.1;
+    opacity: 0.9;
   }
 }
 </style>

@@ -23,7 +23,7 @@ setInterval(getList,10000)
     <div class="desc">在这里管理所有主机实例</div>
     <el-divider style="margin: 10px 0"></el-divider>
     <div class="server-list">
-      <preview-card v-for="item in list" :data="item"></preview-card>
+      <preview-card v-for="item in list" :data="item" :update="getList"></preview-card>
     </div>
 
   </div>

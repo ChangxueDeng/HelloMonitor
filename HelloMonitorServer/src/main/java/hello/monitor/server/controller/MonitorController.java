@@ -1,13 +1,13 @@
 package hello.monitor.server.controller;
 
 import hello.monitor.server.entity.Result;
+import hello.monitor.server.entity.vo.request.RenameClientVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
 import hello.monitor.server.service.ClientService;
 import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,5 +20,9 @@ public class MonitorController {
     public Result<List<ClientPreviewVO>> getClientList(){
         return Result.success(clientService.getClientList());
     }
-
+    @PostMapping("/rename")
+    public Result<Void> renameClient(@RequestBody @Valid RenameClientVO vo) {
+        clientService.renameClient(vo);
+        return Result.success();
+    }
 }
