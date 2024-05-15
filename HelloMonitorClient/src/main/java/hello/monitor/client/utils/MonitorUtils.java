@@ -38,7 +38,6 @@ public class MonitorUtils {
                 .setMemory(memory)
                 .setDisk(diskSize)
                 .setIp(ip);
-
     }
     public RuntimeDetail monitorRuntimeDetail() {
         double statisticTime = 0.5;

@@ -13,4 +13,14 @@ function findByUnit(value, unit) {
     return `${parseInt(value)} ${units[index]}`
 }
 
-export {findByUnit}
+function precessStatus(precess){
+    if (precess < 50) {
+        return 'success'
+    } else if (precess < 80){
+        return 'warning'
+    } else {
+        return 'exception'
+    }
+}
+
+export {findByUnit, precessStatus}

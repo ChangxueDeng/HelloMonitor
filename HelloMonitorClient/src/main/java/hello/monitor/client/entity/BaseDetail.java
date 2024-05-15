@@ -18,5 +18,4 @@ public class BaseDetail {
     private double memory;
     private double disk;
     private String ip;
-
 }

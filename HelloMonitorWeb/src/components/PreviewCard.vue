@@ -1,5 +1,5 @@
 <script setup>
-import {findByUnit} from "@/tools/tools.js"
+import {findByUnit, precessStatus} from "@/tools/tools.js"
 import {useClipboard} from "@vueuse/core";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {post} from "@/net/index.js";
@@ -38,7 +38,7 @@ function rename() {
         <div class="os">操作系统: {{data.osName}} {{data.osVersion}}</div>
       </div>
       <div class="status" v-if="data.online">
-        <i class="fa-regular fa-circle-play" style="color: #95d475"></i>
+        <i class="fa-regular fa-circle-play" style="color: #62e820"></i>
         <span> 运行中</span>
       </div>
       <div class="status" v-else-if="!data.online">
@@ -63,11 +63,11 @@ function rename() {
     </div>
     <div class="progress">
       <span>CPU: {{(data.cpuUsage * 100).toFixed(1)}}%</span>
-      <el-progress status="success" :percentage="data.cpuUsage * 100" :stroke-width="5" :show-text="false"></el-progress>
+      <el-progress :status="precessStatus(data.cpuUsage * 100)" :percentage="data.cpuUsage * 100" :stroke-width="5" :show-text="false"></el-progress>
     </div>
     <div class="progress">
       <span>内存: <b>{{(data.memoryUsage).toFixed(1)}}</b> GB</span>
-      <el-progress status="success" :percentage="data.memoryUsage / data.memory * 100" :stroke-width="5" :show-text="false"></el-progress>
+      <el-progress :status="precessStatus(data.memoryUsage / data.memory * 100)" :percentage="data.memoryUsage / data.memory * 100" :stroke-width="5" :show-text="false"></el-progress>
     </div>
     <div class="network-speed">
       <div>网络流量</div>
@@ -83,14 +83,48 @@ function rename() {
 </template>
 
 <style lang="less" scoped>
-:deep(.el-progress-bar__outer) {
-  background-color: rgba(149, 212, 117, 0.36);
+:deep(.is-success) {
+  .el-progress-bar__outer {
+    background-color: rgba(149, 212, 117, 0.36);
+  }
+  .el-progress-bar__inner{
+    background-color: #95d475;
+  }
+  .el-progress-circle__track {
+    stroke: rgba(149, 212, 117, 0.36);
+  }
+  .el-progress-circle__path {
+    stroke: #95d475;
+  }
 }
-:deep(.el-progress-bar__inner) {
-  background-color: #95d475;
+
+:deep(.is-warning) {
+  .el-progress-bar__outer {
+    background-color: #ffa04622;
+  }
+  .el-progress-bar__inner{
+    background-color: #ffa046;
+  }
+  .el-progress-circle__track {
+    stroke: #ffa04622;
+  }
+  .el-progress-circle__path {
+    stroke: #ffa046;
+  }
 }
-.dark .instance-card{
-  color: #d9d9d9;
+:deep(.is-exception) {
+  .el-progress-bar__outer {
+    background-color: #ff0000;
+  }
+  .el-progress-bar__inner{
+    background-color: rgba(246, 116, 116, 0.59);
+  }
+  .el-progress-circle__track {
+    stroke: rgba(246, 116, 116, 0.59);
+  }
+  .el-progress-circle__path {
+    stroke: #ff0000;
+  }
 }
 .instance-card{
   width: 320px;
@@ -99,6 +133,11 @@ function rename() {
   border-radius: 5px;
   box-sizing: border-box;
   color: #606060;
+  transition: .3s;
+  &:hover{
+    cursor: pointer;
+    scale: 1.02;
+  }
   .name{
     font-size: 15px;
     font-weight: bold;

@@ -7,6 +7,7 @@ import hello.monitor.server.entity.dto.ClientDetail;
 import hello.monitor.server.entity.vo.request.ClientDetailVO;
 import hello.monitor.server.entity.vo.request.RenameClientVO;
 import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
+import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
 import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
@@ -92,7 +93,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
             BeanUtils.copyProperties(detailMapper.selectById(client.getId()), vo);
             RuntimeDetailVO runtime = runtimeDetail.get(client.getId());
             //在线
-            if (runtime != null && System.currentTimeMillis() - runtime.getTimestamp() < 1000 * 60) {
+            if (isOnline(runtime)) {
                 BeanUtils.copyProperties(runtime, vo);
                 vo.setOnline(true);
             }
@@ -104,6 +105,18 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     public void renameClient(RenameClientVO vo) {
         this.update(Wrappers.<Client>update().eq("id", vo.getId()).set("name", vo.getName()));
         this.init();
+    }
+
+    @Override
+    public ClientDetailsVO getClientDetails(int clientId) {
+        ClientDetailsVO vo = new ClientDetailsVO();
+        BeanUtils.copyProperties(this.clientIdCache.get(clientId), vo);
+        BeanUtils.copyProperties(detailMapper.selectById(clientId), vo);
+        vo.setOnline(this.isOnline(runtimeDetail.get(clientId)));
+        return vo;
+    }
+    private boolean isOnline(RuntimeDetailVO runtime) {
+        return runtime != null && System.currentTimeMillis() - runtime.getTimestamp() < 1000 * 60;
     }
 
     @PostConstruct
