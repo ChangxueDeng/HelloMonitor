@@ -3,13 +3,13 @@ package hello.monitor.server.controller;
 import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.vo.request.RenameClientVO;
 import hello.monitor.server.entity.vo.request.RenameNodeVO;
+import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
 import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
+import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
 import hello.monitor.server.service.ClientService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.beans.BeanUtils;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,5 +36,13 @@ public class MonitorController {
     @GetMapping("/details")
     public Result<ClientDetailsVO> getClientDetails(int clientId) {
         return Result.success(clientService.getClientDetails(clientId));
+    }
+    @GetMapping("/runtime-history")
+    public Result<RuntimeHistoryVO> runtimeHistory(int clientId) {
+        return Result.success(clientService.getClientRuntimeHistory(clientId));
+    }
+    @GetMapping("/runtime-now")
+    public Result<RuntimeDetailVO> runtimeNow(int clientId) {
+        return Result.success(clientService.getClientRuntimeDetailsNow(clientId));
     }
 }

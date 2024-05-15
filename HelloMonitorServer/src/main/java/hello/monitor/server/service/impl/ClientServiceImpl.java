@@ -10,6 +10,7 @@ import hello.monitor.server.entity.vo.request.RenameNodeVO;
 import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
 import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
+import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
 import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
 import hello.monitor.server.service.ClientService;
@@ -127,6 +128,19 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     }
     private boolean isOnline(RuntimeDetailVO runtime) {
         return runtime != null && System.currentTimeMillis() - runtime.getTimestamp() < 1000 * 60;
+    }
+
+    @Override
+    public RuntimeHistoryVO getClientRuntimeHistory(int clientId) {
+        RuntimeHistoryVO vo = influxDbUtils.readRuntimeHistoryData(clientId);
+        ClientDetail detail = detailMapper.selectById(clientId);
+        BeanUtils.copyProperties(detail, vo);
+        return vo;
+    }
+
+    @Override
+    public RuntimeDetailVO getClientRuntimeDetailsNow(int clientId) {
+        return runtimeDetail.get(clientId);
     }
 
     @PostConstruct

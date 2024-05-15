@@ -1,6 +1,6 @@
 <script setup>
 
-import {watch} from "vue";
+import {computed, watch} from "vue";
 import {reactive} from "vue";
 import {get, post} from "@/net/index.js"
 import {precessStatus, findByUnit, cpuNameToImage, osNameToIcon, copyIp, rename} from "@/tools/tools.js";
@@ -22,7 +22,9 @@ const props = defineProps({
 })
 const details = reactive({
   base:{},
-  runtime:{},
+  runtime:{
+    list:[]
+  },
   editNode: false,
 })
 const nodeEdit = reactive({
@@ -52,11 +54,25 @@ function submitNodeEdit() {
 const init = id => {
   if (id !== -1) {
     details.base = {}
+    details.runtime = {list:[]}
     get(`/api/monitor/details?clientId=${id}`, data => {
       Object.assign(details.base, data)
     })
+    get(`/api/monitor/runtime-history?clientId=${id}`, data=> {
+      Object.assign(details.runtime, data)
+    })
   }
 }
+setInterval(()=> {
+  if (props.id !== -1 && details.runtime) {
+    get(`api/monitor/runtime-now?clientId=${props.id}`, data => {
+      details.runtime.list.splice(0,-1)
+      details.runtime.list.push(data)
+    })
+  }
+}, 10000)
+
+const now = computed(()=> details.runtime.list[details.runtime.list.length - 1]);
 watch(()=> props.id, value => init(value), {immediate:true})
 
 </script>
@@ -140,26 +156,27 @@ watch(()=> props.id, value => init(value), {immediate:true})
         实时监控
       </div>
       <el-divider style="margin: 10px 0"></el-divider>
-      <div v-if="details.base.online">
-        <div style="display: flex">
-          <el-progress type="dashboard" :width="100" :percentage="20" :status="precessStatus((details.runtime.cpuUsage * 100).toFixed(1))">
+      <div v-if="details.base.online" v-loading="!details.runtime.list.length" style="min-height: 200px">
+        <div style="display: flex" v-if="details.runtime.list.length">
+          <el-progress type="dashboard" :width="100" :percentage="now.cpuUsage * 100" :status="precessStatus((now.cpuUsage * 100).toFixed(1))">
             <div style="font-size: 17px; font-weight: bold; color: initial">CPU</div>
-            <div style="font-size: 13px; color: grey; margin-top: 5px">20%</div>
+            <div style="font-size: 13px; color: grey; margin-top: 5px">{{(now.cpuUsage  * 100 ).toFixed(1)}}%</div>
           </el-progress>
-          <el-progress type="dashboard" :width="100" :percentage="60" :status="precessStatus((details.runtime.memoryUsage * 100).toFixed(1))"
+          <el-progress type="dashboard" :width="100" :percentage="now.memoryUsage / details.runtime.memory * 100"
+                       :status="precessStatus(now.memoryUsage * 100 / details.runtime.memory)"
                        style="margin-left: 20px">
             <div style="font-size: 17px; font-weight: bold; color: initial">内存</div>
-            <div style="font-size: 13px; color: grey; margin-top: 5px">16.6 GB</div>
+            <div style="font-size: 13px; color: grey; margin-top: 5px">{{(now.memoryUsage).toFixed(1)}} GB</div>
           </el-progress>
           <div style="flex: 1; margin-left: 30px; display: flex; flex-direction: column; height: 80px">
             <div style="flex: 1; font-size: 14px">
               <div>实时网络速度</div>
               <div>
                 <i class="fa-solid fa-arrow-up" style="color: sandybrown"></i>
-                <span> {{` /s`}}</span>
+                <span> {{` ${findByUnit(now.networkUpload, 'KB')}/s`}}</span>
                 <el-divider direction="vertical"></el-divider>
                 <i class="fa-solid fa-arrow-down" style="color:yellowgreen;"></i>
-                <span> {{` /s`}}</span>
+                <span> {{` ${findByUnit(now.networkDownload, 'KB')}/s`}}</span>
               </div>
             </div>
             <div>
@@ -168,9 +185,9 @@ watch(()=> props.id, value => init(value), {immediate:true})
                   <i class="fa-solid fa-hard-drive"></i>
                   <span> 磁盘使用情况 </span>
                 </div>
-                <div> 6.6 GB / 40.0 GB</div>
+                <div> {{(now.diskUsage).toFixed(1)}} GB / {{(details.runtime.disk).toFixed(1)}}GB</div>
               </div>
-              <el-progress type="line" status="success" :percentage="60" :show-text="false"></el-progress>
+              <el-progress type="line" :status="precessStatus(now.diskUsage / details.runtime.disk * 100)" :percentage="60" :show-text="false"></el-progress>
             </div>
           </div>
         </div>
