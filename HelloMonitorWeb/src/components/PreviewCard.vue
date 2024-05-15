@@ -1,5 +1,5 @@
 <script setup>
-import {findByUnit, precessStatus} from "@/tools/tools.js"
+import {copyIp, cpuNameToImage, findByUnit, osNameToIcon, precessStatus, rename} from "@/tools/tools.js"
 import {useClipboard} from "@vueuse/core";
 import {ElMessage, ElMessageBox} from "element-plus";
 import {post} from "@/net/index.js";
@@ -7,24 +7,7 @@ const props = defineProps({
   data: Object,
   update: Function
 })
-const {copy} = useClipboard()
-const copyIp = ()=> copy(props.data.ip).then(() => {ElMessage.success("复制成功")})
-function rename() {
-  ElMessageBox.prompt('请输入新的服务器主机名称', '修改名称', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    inputPattern: /^[a-zA-Z0-9_\u4e00-\u9fa5]{1,10}$/,
-    inputErrorMessage: '请输入正确的名称,名称只能保护中英文字符、数字和下划线',
-    inputValue: props.data.name,
-  }).then(({value}) => post('/api/monitor/rename', {
-    id: props.data.id, name: value
-  }, ()=> {
-    ElMessage.success("修改成功")
-    props.update()
-  }, ()=> {
-    ElMessage.error("修改失败")
-  }))
-}
+
 </script>
 
 <template>
@@ -33,9 +16,14 @@ function rename() {
       <div>
         <div class="name">
           <span :class="`flag-icon flag-icon-${data.location}`"></span>
-          {{data.name}} <i class="fa-regular fa-pen-to-square interact-item" @click.stop="rename"></i>
+          {{data.name}} <i class="fa-regular fa-pen-to-square interact-item" @click.stop="rename(props.data.id, props.data.name,props.update)"></i>
         </div>
-        <div class="os">操作系统: {{data.osName}} {{data.osVersion}}</div>
+        <div class="os">
+          <span>操作系统:
+            <i :style="{color: osNameToIcon(data.osName).color}" :class = "`fa-brands ${osNameToIcon(data.osName).icon}`"></i>
+            <span>{{data.osName}} {{data.osVersion}}</span>
+          </span>
+        </div>
       </div>
       <div class="status" v-if="data.online">
         <i class="fa-regular fa-circle-play" style="color: #62e820"></i>
@@ -49,11 +37,15 @@ function rename() {
     <el-divider style="margin: 10px 0"></el-divider>
     <div class="network">
       <span>公网IP: {{data.ip}}</span>
-      <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp"></i>
+      <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(props.data.ip)"></i>
     </div>
 
     <div class="hardware">
-      <div style="font-size: 13px">处理器: {{data.cpuName}}</div>
+      <div style="font-size: 13px;">
+        <span>处理器: {{data.cpuName}}</span>
+        <el-image style="margin-left: 10px; height: 20px" :src="`/cpu-icons/${cpuNameToImage(data.cpuName)}`"></el-image>
+      </div>
+
       <i class="fa-solid fa-microchip"></i>
       <span style="margin-right: 10px"> {{data.cpuCore}} cpu</span>
       <i class="fa-solid fa-memory"></i>
@@ -114,10 +106,10 @@ function rename() {
 }
 :deep(.is-exception) {
   .el-progress-bar__outer {
-    background-color: #ff0000;
+    background-color: rgba(246, 116, 116, 0.59);
   }
   .el-progress-bar__inner{
-    background-color: rgba(246, 116, 116, 0.59);
+    background-color: #ff0000;
   }
   .el-progress-circle__track {
     stroke: rgba(246, 116, 116, 0.59);

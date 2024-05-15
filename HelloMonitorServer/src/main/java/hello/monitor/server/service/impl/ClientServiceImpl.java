@@ -6,6 +6,7 @@ import hello.monitor.server.entity.dto.Client;
 import hello.monitor.server.entity.dto.ClientDetail;
 import hello.monitor.server.entity.vo.request.ClientDetailVO;
 import hello.monitor.server.entity.vo.request.RenameClientVO;
+import hello.monitor.server.entity.vo.request.RenameNodeVO;
 import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
 import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
@@ -104,6 +105,15 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     @Override
     public void renameClient(RenameClientVO vo) {
         this.update(Wrappers.<Client>update().eq("id", vo.getId()).set("name", vo.getName()));
+        this.init();
+    }
+
+    @Override
+    public void renameNode(RenameNodeVO vo) {
+        this.update(Wrappers.<Client>update()
+                .eq("id", vo.getClientId())
+                .set("node", vo.getNode())
+                .set("location", vo.getLocation()));
         this.init();
     }
 

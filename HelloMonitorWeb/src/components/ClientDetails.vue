@@ -2,28 +2,62 @@
 
 import {watch} from "vue";
 import {reactive} from "vue";
-import {get} from "@/net/index.js"
-import {precessStatus, findByUnit} from "@/tools/tools.js";
-import {useClipboard} from "@vueuse/core";
+import {get, post} from "@/net/index.js"
+import {precessStatus, findByUnit, cpuNameToImage, osNameToIcon, copyIp, rename} from "@/tools/tools.js";
 import {ElMessage} from "element-plus";
 
+const location = [
+  {name: 'cn', desc: '中国大陆'},
+  {name: 'us', desc: '美国'},
+  {name: 'jp', desc: '日本'},
+  {name: 'de', desc: '德国'},
+  {name: 'kr', desc: '韩国'},
+  {name: 'hk', desc: '中国香港'},
+  {name: 'sg', desc: '新加坡'},
+]
+
 const props = defineProps({
-  id : Number
+  id : Number,
+  update: Function
 })
 const details = reactive({
   base:{},
-  runtime:{}
+  runtime:{},
+  editNode: false,
 })
-const {copy} = useClipboard()
-const copyIp = ()=> copy(details.base.ip).then(() => {ElMessage.success("复制成功")})
-watch(()=> props.id, value => {
-  if (value !== -1) {
+const nodeEdit = reactive({
+  node: '',
+  location: ''
+})
+const enableNodeEdit = ()=> {
+  details.editNode = true,
+  nodeEdit.node = details.base.node,
+  nodeEdit.location = details.base.location
+}
+function updateDetails() {
+  props.update()
+  init(props.id)
+}
+function submitNodeEdit() {
+  post('api/monitor/rename-node', {
+    clientId : details.base.id,
+    node: nodeEdit.node,
+    location: nodeEdit.location
+  }, ()=> {
+    details.editNode = false
+    ElMessage.success("修改节点信息成功")
+    updateDetails()
+  })
+}
+const init = id => {
+  if (id !== -1) {
     details.base = {}
-    get(`/api/monitor/details?clientId=${value}`, data => {
+    get(`/api/monitor/details?clientId=${id}`, data => {
       Object.assign(details.base, data)
     })
   }
-}, {immediate:true})
+}
+watch(()=> props.id, value => init(value), {immediate:true})
 
 </script>
 
@@ -42,6 +76,7 @@ watch(()=> props.id, value => {
         <div>
           <span>服务器名称</span>
           <span>{{details.base.name}}</span>
+          <i class="fa-regular fa-pen-to-square interact-item" @click.stop="rename(details.base.id, details.base.name,updateDetails)"></i>
         </div>
         <div>
           <span>运行状态</span>
@@ -51,19 +86,39 @@ watch(()=> props.id, value => {
             <span> {{details.base.online ? '运行中' : '离线'}}</span>
           </span>
         </div>
-        <div>
+        <div v-if="!details.editNode">
           <span>服务器节点</span>
           <span :class="`flag-icon flag-icon-${details.base.location}`"></span>
-          <span>{{details.base.name}}</span>
+          <span>{{details.base.node}}</span>
+          <i class="fa-regular fa-pen-to-square interact-item" @click.stop="enableNodeEdit"></i>
+        </div>
+        <div v-else>
+          <span>服务器节点</span>
+          <div style="display: inline-block; height: 15px;">
+            <div style="display: flex">
+              <el-select v-model="nodeEdit.location" style="width: 80px" size="small">
+                <el-option v-for="item in location" :value="item.name">
+                  <span :class="`flag-icon flag-icon-${item.name}`"></span>&nbsp;
+                  {{item.desc}}
+                </el-option>
+              </el-select>
+              <el-input v-model="nodeEdit.node" style="margin-left: 10px"
+                        size="small" placeholder="请输入节点名称"></el-input>
+              <div style="margin-left: 10px">
+                <i class="fa-solid fa-check interact-item" @click.stop="submitNodeEdit" />
+              </div>
+            </div>
+          </div>
         </div>
         <div>
           <span>公网IP</span>
           <span>{{details.base.ip}}</span>
-          <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp"></i>
+          <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(details.base.ip)"></i>
         </div>
-        <div >
+        <div style="display: flex">
           <span>处理器</span>
           <span> {{details.base.cpuName}}</span>
+          <el-image style="margin-left: 10px; height: 20px" :src="`/cpu-icons/${cpuNameToImage(details.base.cpuName)}`"></el-image>
         </div>
         <div>
           <span>硬件配置信息</span>
@@ -76,7 +131,8 @@ watch(()=> props.id, value => {
         </div>
         <div>
           <span>操作系统</span>
-          <span>{{`${details.base.osName} ${details.base.osVersion}`}}</span>
+          <i :style="{color: osNameToIcon(details.base.osName).color}" :class = "`fa-brands ${osNameToIcon(details.base.osName).icon}`"></i>
+          <span style="margin-left: 10px">{{`${details.base.osName} ${details.base.osVersion}`}}</span>
         </div>
       </div>
       <div class="title">
@@ -84,38 +140,43 @@ watch(()=> props.id, value => {
         实时监控
       </div>
       <el-divider style="margin: 10px 0"></el-divider>
-      <div style="display: flex">
-        <el-progress type="dashboard" :width="100" :percentage="20" :status="precessStatus((details.runtime.cpuUsage * 100).toFixed(1))">
-          <div style="font-size: 17px; font-weight: bold; color: initial">CPU</div>
-          <div style="font-size: 13px; color: grey; margin-top: 5px">20%</div>
-        </el-progress>
-        <el-progress type="dashboard" :width="100" :percentage="60" :status="precessStatus((details.runtime.memoryUsage * 100).toFixed(1))"
-                     style="margin-left: 20px">
-          <div style="font-size: 17px; font-weight: bold; color: initial">内存</div>
-          <div style="font-size: 13px; color: grey; margin-top: 5px">16.6 GB</div>
-        </el-progress>
-        <div style="flex: 1; margin-left: 30px; display: flex; flex-direction: column; height: 80px">
-          <div style="flex: 1; font-size: 14px">
-            <div>实时网络速度</div>
-            <div>
-              <i class="fa-solid fa-arrow-up" style="color: sandybrown"></i>
-              <span> {{` /s`}}</span>
-              <el-divider direction="vertical"></el-divider>
-              <i class="fa-solid fa-arrow-down" style="color:yellowgreen;"></i>
-              <span> {{` /s`}}</span>
-            </div>
-          </div>
-          <div>
-            <div style="font-size: 13px; display: flex; justify-content: space-between">
+      <div v-if="details.base.online">
+        <div style="display: flex">
+          <el-progress type="dashboard" :width="100" :percentage="20" :status="precessStatus((details.runtime.cpuUsage * 100).toFixed(1))">
+            <div style="font-size: 17px; font-weight: bold; color: initial">CPU</div>
+            <div style="font-size: 13px; color: grey; margin-top: 5px">20%</div>
+          </el-progress>
+          <el-progress type="dashboard" :width="100" :percentage="60" :status="precessStatus((details.runtime.memoryUsage * 100).toFixed(1))"
+                       style="margin-left: 20px">
+            <div style="font-size: 17px; font-weight: bold; color: initial">内存</div>
+            <div style="font-size: 13px; color: grey; margin-top: 5px">16.6 GB</div>
+          </el-progress>
+          <div style="flex: 1; margin-left: 30px; display: flex; flex-direction: column; height: 80px">
+            <div style="flex: 1; font-size: 14px">
+              <div>实时网络速度</div>
               <div>
-                <i class="fa-solid fa-hard-drive"></i>
-                <span> 磁盘使用情况 </span>
+                <i class="fa-solid fa-arrow-up" style="color: sandybrown"></i>
+                <span> {{` /s`}}</span>
+                <el-divider direction="vertical"></el-divider>
+                <i class="fa-solid fa-arrow-down" style="color:yellowgreen;"></i>
+                <span> {{` /s`}}</span>
               </div>
-              <div> 6.6 GB / 40.0 GB</div>
             </div>
-            <el-progress type="line" status="success" :percentage="60" :show-text="false"></el-progress>
+            <div>
+              <div style="font-size: 13px; display: flex; justify-content: space-between">
+                <div>
+                  <i class="fa-solid fa-hard-drive"></i>
+                  <span> 磁盘使用情况 </span>
+                </div>
+                <div> 6.6 GB / 40.0 GB</div>
+              </div>
+              <el-progress type="line" status="success" :percentage="60" :show-text="false"></el-progress>
+            </div>
           </div>
         </div>
+      </div>
+      <div v-else>
+        <el-empty description="服务器处于离线状态，无法获取实时信息"></el-empty>
       </div>
     </div>
   </div>
@@ -153,10 +214,10 @@ watch(()=> props.id, value => {
 }
 :deep(.is-exception) {
   .el-progress-bar__outer {
-    background-color: #ff0000;
+    background-color: rgba(246, 116, 116, 0.59);
   }
   .el-progress-bar__inner{
-    background-color: rgba(246, 116, 116, 0.59);
+    background-color: #ff0000;
   }
   .el-progress-circle__track {
     stroke: rgba(246, 116, 116, 0.59);

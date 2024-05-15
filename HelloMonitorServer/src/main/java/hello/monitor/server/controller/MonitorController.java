@@ -2,6 +2,7 @@ package hello.monitor.server.controller;
 
 import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.vo.request.RenameClientVO;
+import hello.monitor.server.entity.vo.request.RenameNodeVO;
 import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
 import hello.monitor.server.service.ClientService;
@@ -25,6 +26,11 @@ public class MonitorController {
     @PostMapping("/rename")
     public Result<Void> renameClient(@RequestBody @Valid RenameClientVO vo) {
         clientService.renameClient(vo);
+        return Result.success();
+    }
+    @PostMapping("/rename-node")
+    public Result<Void> renameNode(@RequestBody @Valid RenameNodeVO vo) {
+        clientService.renameNode(vo);
         return Result.success();
     }
     @GetMapping("/details")

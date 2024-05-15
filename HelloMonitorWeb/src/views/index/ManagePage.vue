@@ -35,7 +35,7 @@ const showDetail = (id) => {
     </div>
     <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="600"
                direction="ttb" style="justify-items: center;" @close="detail.id = -1" :with-header="false">
-      <client-details :id="detail.id"></client-details>
+      <client-details :id="detail.id" :update="getList"></client-details>
     </el-drawer>
   </div>
 </template>
