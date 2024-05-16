@@ -22,5 +22,9 @@ public class Const {
     public static final String LIMIT_COUNT_KEY = "limit:count:key:";
     public static final String LIMIT_BAN_KEY = "limit:ban:key:";
     public static final String TOKEN_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static final String ROLE_ADMIN = "admin";
+    public static final String ROLE_NORMAL = "normal";
+    public static final String USER_BAN_LIST = "user:ban:list:";
+    public static final String USER_ROLE = "userRole";
 
 }

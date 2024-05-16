@@ -30,4 +30,5 @@ public class Account implements BaseData {
     String role;
     @TableField("register_time")
     Date registerTime;
+    private String clients;
 }

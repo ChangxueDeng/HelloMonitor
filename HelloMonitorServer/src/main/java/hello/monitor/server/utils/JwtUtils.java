@@ -101,6 +101,10 @@ public class JwtUtils {
             DecodedJWT decodedJwt = verifier.verify(token);
             if(decodedJwt.getExpiresAt().before(new Date())) {
                 return null;
+            } else if (isInJwtBlack(decodedJwt.getId())) {
+                return null;
+            } else if (isBanUser(decodedJwt.getClaim("id").asInt())){
+                return null;
             }
             return decodedJwt;
         } catch (Exception e) {
@@ -141,7 +145,12 @@ public class JwtUtils {
         Map<String, Claim> map = decodedJwt.getClaims();
         return map.get("id").toString();
     }
-
+    public void deleteUser(int uid) {
+        stringRedisTemplate.opsForValue().set(Const.USER_BAN_LIST + uid, "", expire, TimeUnit.HOURS);
+    }
+    public boolean isBanUser(int uid) {
+        return Boolean.TRUE.equals(stringRedisTemplate.hasKey(Const.USER_BAN_LIST + uid));
+    }
 
     /**
      * 验证token是否满足格式

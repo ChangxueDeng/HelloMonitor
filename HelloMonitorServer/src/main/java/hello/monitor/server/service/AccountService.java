@@ -3,6 +3,9 @@ package hello.monitor.server.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import hello.monitor.server.entity.dto.Account;
 import hello.monitor.server.entity.vo.request.*;
+import hello.monitor.server.entity.vo.response.SubAccountVO;
+
+import java.util.List;
 
 /**
  * 用户的方法
@@ -47,6 +50,8 @@ public interface AccountService extends IService<Account> {
     String resetPassword(ResetPasswordVO resetPasswordVO);
     String changePassword(int id, UserChangePasswoedVO vo);
     String resetEmail(int id, UserResetEmailVO vo);
-
+    String createSubAccount(CreateSubAccountVO vo);
+    String deleteSubAccount(int id, int subUid);
+    List<SubAccountVO> getSubAccountList();
 
 }

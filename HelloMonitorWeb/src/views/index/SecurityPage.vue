@@ -2,7 +2,7 @@
 import {ref, reactive} from "vue";
 import {ElMessage} from "element-plus";
 import {post} from "@/net/index.js";
-import {Refresh, Switch,Lock} from "@element-plus/icons-vue";
+import {Refresh, Switch, Lock, Plus} from "@element-plus/icons-vue";
 import router from "@/router/index.js";
 import {logout} from "@/net/index.js";
 
@@ -103,30 +103,33 @@ function resetPassword(){
 </script>
 
 <template>
-  <div style="display: flex; gap: 10px; justify-content: center; flex-direction: column; margin-top: 30px;">
-    <div class="lite-card" style="width: 500px">
-      <el-form style="margin: 20px 10px 10px 10px" label-position="left" :model="emailForm" :rules="rule"
-               ref="emailFormRef" @validate="onValidateEmail" label-width="120">
-        <el-form-item label="电子邮箱地址" prop="email">
-          <el-input v-model="emailForm.email"></el-input>
-        </el-form-item>
-        <el-row style="width: 100%">
-          <el-col :span="18">
-            <el-form-item prop="code">
-              <el-input placeholder="请输入获取的验证码" v-model="emailForm.code"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="5" style="margin-left: 15px">
-            <el-button type="primary" plain @click="sendEmailCode()" :disabled="!isValidEmail ||coldTime > 0">{{coldTime > 0 ?
-                '请等待：' + coldTime + '秒' : '获取验证码'}}</el-button>
-          </el-col>
-        </el-row>
-        <div style="display: flex; justify-content: flex-end;">
-          <el-button type="primary" :icon="Refresh" plain @click="modifyEmail()"> 保存邮箱</el-button>
-        </div>
-      </el-form>
-    </div>
+  <div style="display: flex; gap: 10px; justify-content: center; flex-direction: row; margin-top: 30px;">
+    <div>
       <div class="lite-card" style="width: 500px">
+        <div class="title"><i class="fa-solid fa-key"></i> 修改密码</div>
+        <el-form style="margin: 20px 10px 10px 10px" label-position="left" :model="emailForm" :rules="rule"
+                 ref="emailFormRef" @validate="onValidateEmail" label-width="120">
+          <el-form-item label="电子邮箱地址" prop="email">
+            <el-input v-model="emailForm.email"></el-input>
+          </el-form-item>
+          <el-row style="width: 100%">
+            <el-col :span="18">
+              <el-form-item prop="code">
+                <el-input placeholder="请输入获取的验证码" v-model="emailForm.code"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="5" style="margin-left: 15px">
+              <el-button type="primary" plain @click="sendEmailCode()" :disabled="!isValidEmail ||coldTime > 0">{{coldTime > 0 ?
+                  '请等待：' + coldTime + '秒' : '获取验证码'}}</el-button>
+            </el-col>
+          </el-row>
+          <div style="display: flex; justify-content: flex-end;">
+            <el-button type="primary" :icon="Refresh" plain @click="modifyEmail()"> 保存邮箱</el-button>
+          </div>
+        </el-form>
+      </div>
+      <div class="lite-card" style="width: 500px; margin-top: 20px">
+        <div class="title"><i class="fa-solid fa-envelope"></i> 修改邮箱</div>
         <el-form label-width="100" style="margin: 20px;" :model="form" :rules="rules" ref="formRef" @validate="onValidate">
           <el-form-item label="当前密码" prop="password">
             <el-input :prefix-icon="Lock" placeholder="当前密码" maxlength="16" minlength="6" v-model="form.password"></el-input>
@@ -143,6 +146,16 @@ function resetPassword(){
         </div>
       </div>
     </div>
+    <div>
+      <div class="lite-card" style="width: 500px">
+        <div class="title"><i class="fa-solid fa-users"></i> 子用户管理</div>
+        <el-divider></el-divider>
+        <el-empty :image-size="100" description="子用户为空">
+          <el-button :icon="Plus" type="primary">添加子用户</el-button>
+        </el-empty>
+      </div>
+    </div>
+    </div>
 </template>
 
 <style scoped>
@@ -150,6 +163,10 @@ function resetPassword(){
   background-color: var(--el-bg-color);
   border-radius: 5px;
   padding: 10px;
-  margin: 0 auto;
+}
+.title{
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--el-color-primary);
 }
 </style>

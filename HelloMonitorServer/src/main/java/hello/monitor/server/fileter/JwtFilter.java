@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -63,6 +64,7 @@ public class JwtFilter extends OncePerRequestFilter {
             //设置setContext
             SecurityContextHolder.setContext(context);
             request.setAttribute(Const.USER_ID, id);
+            request.setAttribute(Const.USER_ROLE, new ArrayList<>(user.getAuthorities()).get(0).getAuthority());
         }
         filterChain.doFilter(request, response);
     }

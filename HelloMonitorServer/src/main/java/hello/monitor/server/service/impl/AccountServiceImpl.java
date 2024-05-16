@@ -1,18 +1,18 @@
 package hello.monitor.server.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import hello.monitor.server.entity.vo.request.UserChangePasswoedVO;
-import hello.monitor.server.entity.vo.request.UserResetEmailVO;
+import hello.monitor.server.entity.vo.request.*;
+import hello.monitor.server.entity.vo.response.SubAccountVO;
 import jakarta.annotation.Resource;
 import hello.monitor.server.entity.dto.Account;
-import hello.monitor.server.entity.vo.request.ResetConfirmVO;
-import hello.monitor.server.entity.vo.request.ResetPasswordVO;
 import hello.monitor.server.mapper.AccountMapper;
 import hello.monitor.server.service.AccountService;
 import hello.monitor.server.utils.Const;
 import hello.monitor.server.utils.FlowUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -166,6 +167,38 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         this.update().eq("id", id).set("email", vo.getEmail()).update();
         deleteEmailVerify(Const.LIMIT_EMAIL_DATA + vo.getEmail());
         return null;
+    }
+
+    @Override
+    public String createSubAccount(CreateSubAccountVO vo) {
+        if (existAccountByUsername(vo.getUsername())) {
+            return "用户名已被使用";
+        } else if (existAccountByEmail(vo.getEmail())) {
+            return "邮箱已被占用";
+        }
+        Account account = new Account(null,vo.getUsername(),passwordEncoder.encode(vo.getPassword()),
+                vo.getEmail(), Const.ROLE_NORMAL, new Date(), JSONArray.copyOf(vo.getClients()).toString());
+        this.save(account);
+        return null;
+    }
+
+    @Override
+    public String deleteSubAccount(int id, int subUid) {
+        if (id == subUid) {
+            return "错误的操作";
+        }
+        this.removeById(subUid);
+        return null;
+    }
+
+    @Override
+    public List<SubAccountVO> getSubAccountList() {
+        return this.list(Wrappers.<Account>query().eq("role", Const.ROLE_NORMAL)).stream().map(account -> {
+            SubAccountVO subAccountVO = new SubAccountVO();
+            BeanUtils.copyProperties(account, subAccountVO);
+            subAccountVO.setClients(JSONArray.parse(account.getClients()));
+            return subAccountVO;
+        }).toList();
     }
 
     /**
