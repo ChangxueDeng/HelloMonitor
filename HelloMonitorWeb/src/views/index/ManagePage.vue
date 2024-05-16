@@ -4,7 +4,9 @@ import PreviewCard from "@/components/PreviewCard.vue";
 import {reactive, ref} from "vue";
 import {get} from "@/net/index.js";
 import ClientDetails from "@/components/ClientDetails.vue";
-
+import Register from "@/components/Register.vue"
+import {Plus} from "@element-plus/icons-vue";
+import {ElMessageBox} from "element-plus";
 const list = ref([])
 
 function getList(){
@@ -12,7 +14,10 @@ function getList(){
     list.value = data
   })
 }
-
+const register = reactive({
+  show: false,
+  token :''
+})
 getList()
 setInterval(getList,10000)
 const detail = reactive({
@@ -23,24 +28,41 @@ const showDetail = (id) => {
   detail.show = true
   detail.id = id
 }
+const refresh = () => {
+  get('api/monitor/register', token => register.token =  token)
+}
+
 </script>
 
 <template>
   <div class="manage-main">
-    <div class="title"><i class="fa-solid fa-server"></i>管理主机列表</div>
-    <div class="desc">在这里管理所有主机实例</div>
+    <div style="display: flex;justify-content: space-between;align-items: center;">
+      <div>
+        <div class="title"><i class="fa-solid fa-server"></i>管理主机列表</div>
+        <div class="desc">在这里管理所有主机实例</div>
+      </div>
+      <div>
+        <el-button :icon="Plus" @click="register.show = true" type="primary">新增主机</el-button>
+      </div>
+    </div>
+
     <el-divider style="margin: 10px 0"></el-divider>
-    <div class="server-list">
+    <div class="server-list" v-if="list.length">
       <preview-card v-for="item in list" :data="item" :update="getList" @click="showDetail(item.id)"></preview-card>
     </div>
+    <el-empty v-else-if="list.length === 0" description="主机列表为空，立即点击右上角按钮添加新主机！"></el-empty>
     <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="700"
                direction="ttb" style="justify-items: center;" @close="detail.id = -1" :with-header="false">
-      <client-details :id="detail.id" :update="getList"></client-details>
+      <client-details :id="detail.id" :update="getList" @delete="getList"></client-details>
+    </el-drawer>
+    <el-drawer v-model="register.show" @close="register.show = false" direction="ttb"
+               style="justify-items: center;" :size="350" :with-header="false" @open="refresh()">
+      <register :token="register.token"></register>
     </el-drawer>
   </div>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
 :deep(.el-drawer) {
   position: absolute;
   margin: auto auto;

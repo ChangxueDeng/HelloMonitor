@@ -41,7 +41,7 @@ function updateNetworkUsage(list) {
   const chart = charts[2]
   let data = [
     list.map(item => item.networkUpload),
-    list.map(item => item.networkDownloa)
+    list.map(item => item.networkDownload)
   ]
   const option = defaultOption('网络(KB/s)', localTimeLine(list))
   doubleSeries(option, ['上传(KB/s)', '下载(KB/s)'], data,[
@@ -58,7 +58,7 @@ function updateDiskUsage(list) {
     list.map(item => item.diskWrite.toFixed(1))
   ]
   const option = defaultOption('磁盘(MB/s)', localTimeLine(list))
-  doubleSeries(option, ['读取(MB/s)', '写如(MB/s)'], data,[
+  doubleSeries(option, ['读取(MB/s)', '写入(MB/s)'], data,[
       ['#d2d2d2', '#d5d5d5', 'rgba(199,199,199,0.2)'],
       ['#757575', '#7c7c7c', 'rgba(94,94,94,0.2)']
   ])

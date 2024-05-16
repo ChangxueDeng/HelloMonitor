@@ -86,4 +86,13 @@ public class MonitorController {
     public Result<RuntimeDetailVO> runtimeNow(int clientId) {
         return Result.success(clientService.getClientRuntimeDetailsNow(clientId));
     }
+    @GetMapping("/register")
+    public Result<String> register() {
+        return Result.success(clientService.registerToken());
+    }
+    @GetMapping("delete")
+    public Result<Void> deleteClient(int clientId) {
+        clientService.deleteClient(clientId);
+        return Result.success();
+    }
 }

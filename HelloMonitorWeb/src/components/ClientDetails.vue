@@ -4,8 +4,9 @@ import {computed, watch} from "vue";
 import {reactive} from "vue";
 import {get, post} from "@/net/index.js"
 import {precessStatus, findByUnit, cpuNameToImage, osNameToIcon, copyIp, rename} from "@/tools/tools.js";
-import {ElMessage} from "element-plus";
+import {ElMessage, ElMessageBox} from "element-plus";
 import RuntimeHistory from "@/components/RuntimeHistory.vue";
+import {Delete} from "@element-plus/icons-vue";
 
 const location = [
   {name: 'cn', desc: '中国大陆'},
@@ -16,7 +17,7 @@ const location = [
   {name: 'hk', desc: '中国香港'},
   {name: 'sg', desc: '新加坡'},
 ]
-
+const emits = defineEmits(['delete'])
 const props = defineProps({
   id : Number,
   update: Function
@@ -67,11 +68,28 @@ const init = id => {
 setInterval(()=> {
   if (props.id !== -1 && details.runtime) {
     get(`api/monitor/runtime-now?clientId=${props.id}`, data => {
-      details.runtime.list.splice(0,-1)
+      if (details.runtime.list.length >= 360) {
+        details.runtime.list.splice(0,-1)
+
+      }
       details.runtime.list.push(data)
     })
   }
 }, 10000)
+
+function deleteClient(clientId) {
+  ElMessageBox.confirm('确定要删除主机吗？', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    get(`api/monitor/delete?clientId=${clientId}`, () => {
+      props.update()
+      emits('delete')
+      ElMessage.success("删除成功")
+    })
+  }).catch(() => {})
+  }
 
 const now = computed(()=> details.runtime.list[details.runtime.list.length - 1]);
 watch(()=> props.id, value => init(value), {immediate:true})
@@ -81,9 +99,13 @@ watch(()=> props.id, value => init(value), {immediate:true})
 <template>
     <div class="client-details" v-loading="Object.keys(details.base).length === 0">
       <div v-if="Object.keys(details.base).length !== 0">
-        <div class="title">
-          <i class="fa-solid fa-server"></i>服务器信息
+        <div style="display: flex; justify-content: space-between">
+          <div class="title">
+            <i class="fa-solid fa-server"></i>服务器信息
+          </div>
+          <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)">删除此主机</el-button>
         </div>
+
         <el-divider style="margin: 10px 0"></el-divider>
         <div class="details-list">
           <div>
