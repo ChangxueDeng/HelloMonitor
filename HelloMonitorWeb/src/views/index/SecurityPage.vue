@@ -1,10 +1,11 @@
 <script setup>
 import {ref, reactive} from "vue";
 import {ElMessage} from "element-plus";
-import {post} from "@/net/index.js";
-import {Refresh, Switch, Lock, Plus} from "@element-plus/icons-vue";
+import {post, get} from "@/net/index.js";
+import {Refresh, Switch, Lock, Plus, Delete} from "@element-plus/icons-vue";
 import router from "@/router/index.js";
 import {logout} from "@/net/index.js";
+import CreateSubAccount from "@/components/CreateSubAccount.vue";
 
 const emailFormRef = ref()
 const form = reactive({
@@ -100,6 +101,25 @@ function resetPassword(){
     }
   })
 }
+const simpleList = ref([])
+function getSimpleList(){
+  get('api/monitor/simple-list', (data)=>{
+    simpleList.value = data
+  })
+}
+const createSub = ref(false)
+const subAccountList = ref([])
+getSimpleList()
+function getSubAccountList(){
+  get('api/user/sub/list', (data)=>{subAccountList.value = data})
+}
+function deleteSubAccount(id){
+  get(`api/user/sub/delete?subUid=${id}`, ()=>{
+    ElMessage.success("删除成功")
+    getSubAccountList()
+  })
+}
+getSubAccountList()
 </script>
 
 <template>
@@ -150,23 +170,58 @@ function resetPassword(){
       <div class="lite-card" style="width: 500px">
         <div class="title"><i class="fa-solid fa-users"></i> 子用户管理</div>
         <el-divider></el-divider>
+        <div v-if="subAccountList.length" style="text-align: center">
+          <div v-for="item in subAccountList" class="account-card">
+            <el-avatar class="avatar" :size="30"
+                       src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"/>
+            <div style="margin-left: 15px;line-height: 18px;flex: 1">
+              <div>
+                <span>{{item.username}}</span>
+                <span style="font-size: 13px;color: grey;margin-left: 5px">
+                管理 {{item.clients.length}} 个服务器
+              </span>
+              </div>
+              <div style="font-size: 13px;color: grey">{{item.email}}</div>
+            </div>
+            <el-button type="danger" :icon="Delete"
+                       @click="deleteSubAccount(item.id)" text>删除子账户</el-button>
+          </div>
+          <el-button :icon="Plus" type="primary"
+                     @click="createSub = true" plain>添加更多子用户</el-button>
+        </div>
+        <div v-else>
         <el-empty :image-size="100" description="子用户为空">
-          <el-button :icon="Plus" type="primary">添加子用户</el-button>
+          <el-button :icon="Plus" type="primary" @click="createSub=true">添加子用户</el-button>
         </el-empty>
+        </div>
       </div>
     </div>
+    <el-drawer v-model="createSub" @close="createSub = false" :with-header="false" :size="400">
+      <create-sub-account :clients="simpleList" @create="getSubAccountList();createSub = false"></create-sub-account>
+    </el-drawer>
     </div>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
+:deep(.el-drawer) {
+  margin: 10px 0;
+  height: calc(100% - 20px);
+  padding: 0;
+  border-radius: 10px;
+}
 .lite-card{
   background-color: var(--el-bg-color);
   border-radius: 5px;
   padding: 10px;
 }
-.title{
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--el-color-primary);
+.account-card {
+  border-radius: 5px;
+  background-color: var(--el-bg-color-page);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  margin: 10px 0;
 }
+
 </style>

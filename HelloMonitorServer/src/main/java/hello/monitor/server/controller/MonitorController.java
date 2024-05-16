@@ -6,6 +6,7 @@ import hello.monitor.server.entity.vo.request.RenameNodeVO;
 import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
 import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
+import hello.monitor.server.entity.vo.response.ClientSimpleVO;
 import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
 import hello.monitor.server.service.ClientService;
 import jakarta.annotation.Resource;
@@ -90,9 +91,13 @@ public class MonitorController {
     public Result<String> register() {
         return Result.success(clientService.registerToken());
     }
-    @GetMapping("delete")
+    @GetMapping("/delete")
     public Result<Void> deleteClient(int clientId) {
         clientService.deleteClient(clientId);
         return Result.success();
+    }
+    @GetMapping("/simple-list")
+    public Result<List<ClientSimpleVO>> getClientSimpleList() {
+        return Result.success(clientService.getClientSimpleList());
     }
 }

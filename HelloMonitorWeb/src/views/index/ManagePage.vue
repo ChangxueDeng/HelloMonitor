@@ -6,7 +6,6 @@ import {get} from "@/net/index.js";
 import ClientDetails from "@/components/ClientDetails.vue";
 import Register from "@/components/Register.vue"
 import {Plus} from "@element-plus/icons-vue";
-import {ElMessageBox} from "element-plus";
 import {useRoute} from "vue-router";
 
 const route = useRoute()

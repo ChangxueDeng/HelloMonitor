@@ -10,6 +10,7 @@ import hello.monitor.server.entity.vo.request.RenameNodeVO;
 import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
 import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
+import hello.monitor.server.entity.vo.response.ClientSimpleVO;
 import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
 import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
@@ -149,6 +150,16 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
         detailMapper.deleteById(clientId);
         this.init();
         runtimeDetail.remove(clientId);
+    }
+
+    @Override
+    public List<ClientSimpleVO> getClientSimpleList() {
+        return clientIdCache.values().stream().map(client -> {
+            ClientSimpleVO vo = new ClientSimpleVO();
+            BeanUtils.copyProperties(client, vo);
+            BeanUtils.copyProperties(detailMapper.selectById(client.getId()), vo);
+            return vo;
+        }).toList();
     }
 
     @PostConstruct
