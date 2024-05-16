@@ -10,6 +10,10 @@ import hello.monitor.server.entity.BaseData;
 
 import java.util.Date;
 
+/**
+ * @author ChangxueDeng
+ * @date 2024/05/16
+ */
 @TableName("account")
 @AllArgsConstructor
 @Data

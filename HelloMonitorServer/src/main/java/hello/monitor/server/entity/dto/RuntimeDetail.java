@@ -6,6 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.Instant;
+/**
+ * @author ChangxueDeng
+ */
 @Data
 @Measurement(name = "runtime")
 public class RuntimeDetail {

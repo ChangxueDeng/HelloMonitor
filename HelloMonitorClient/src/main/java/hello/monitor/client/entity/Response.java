@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
+ * http响应
  * @author ChangxueDeng
  */
 public record Response(int id, int status, Object data, String message) {

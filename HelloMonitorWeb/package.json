@@ -13,6 +13,7 @@
     "@vueuse/components": "^10.9.0",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.7",
+    "echarts": "^5.5.0",
     "element-plus": "^2.5.6",
     "flag-icon-css": "^4.1.7",
     "pinia": "^2.1.7",

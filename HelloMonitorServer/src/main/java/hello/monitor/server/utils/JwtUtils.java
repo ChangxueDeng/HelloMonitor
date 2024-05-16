@@ -26,14 +26,21 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class JwtUtils {
 
-    //签名密钥
+    /**签名密钥
+     */
     @Value("${spring.security.jwt.key}")
     private String key;
 
-    //有效时长
+
+    /**
+     * token过期时间
+     */
     @Value("${spring.security.jwt.expire}")
     private int expire;
 
+    /**
+     * redis操作工具类
+     */
     @Resource
     StringRedisTemplate stringRedisTemplate;
 
@@ -60,9 +67,9 @@ public class JwtUtils {
 
     /**
      * 创建令牌
-     * @param details
-     * @param name
-     * @param id
+     * @param details UserDetails
+     * @param name 用户名
+     * @param id 用户id
      * @return {@link String}
      */
     public String createJwtToken(UserDetails details, String name, int id) {
@@ -79,25 +86,35 @@ public class JwtUtils {
 
     /**
      * 解析令牌
-     * @param headerToken
+     * @param headerToken 整个token
      * @return {@link DecodedJWT}
      */
     public DecodedJWT decodedJwtToken(String headerToken) {
         //验证器
         JWTVerifier verifier = JWT.require(createAlgorithm()).build();
         //验证token格式
-        if (!checkJwtToken(headerToken)) return null;
+        if (!checkJwtToken(headerToken)) {
+            return null;
+        }
         try {
             String token = headerToken.substring(7);
             DecodedJWT decodedJwt = verifier.verify(token);
-            if(decodedJwt.getExpiresAt().before(new Date())) return null;
+            if(decodedJwt.getExpiresAt().before(new Date())) {
+                return null;
+            }
             return decodedJwt;
         } catch (Exception e) {
             return null;
         }
     }
 
-    //返回一个User对象
+
+    /**
+     * 根据解码后的jwt获取用户详情
+     *  从jwt中提取用户名和权限信息，构建UserDetails对象
+     * @param decodedJwt 解码后的jwt
+     * @return {@link UserDetails}
+     */
     public UserDetails getUserDetails(DecodedJWT decodedJwt) {
         Map<String, Claim> claimMap = decodedJwt.getClaims();
         return User.withUsername(claimMap.get("name").asString())
@@ -105,19 +122,30 @@ public class JwtUtils {
                 .authorities(claimMap.get("authorities").asArray(String.class))
                 .build();
     }
-    public boolean checkJwtTokenExpired(String hearderToken) {
-        return !checkJwtToken(hearderToken) || JWT.decode(hearderToken.substring(7)).getExpiresAt().before(new Date());
+
+    /**
+     * 进行解码前，判断是否过期
+     * @param headerToken 完整token
+     * @return boolean
+     */
+    public boolean checkJwtTokenExpired(String headerToken) {
+        return !checkJwtToken(headerToken) || JWT.decode(headerToken.substring(7)).getExpiresAt().before(new Date());
     }
 
-    public String getId(DecodedJWT decodedJWT) {
-        Map<String, Claim> map = decodedJWT.getClaims();
+    /**
+     * 从jwt中获取id
+     * @param decodedJwt 解码后的jwt
+     * @return {@link String}
+     */
+    public String getId(DecodedJWT decodedJwt) {
+        Map<String, Claim> map = decodedJwt.getClaims();
         return map.get("id").toString();
     }
 
 
     /**
      * 验证token是否满足格式
-     * @param headerToken
+     * @param headerToken 完整token
      * @return boolean
      */
     private boolean checkJwtToken(String headerToken) {
@@ -125,12 +153,14 @@ public class JwtUtils {
     }
 
     /** 令牌失效
-     * @param headerToken
+     * @param headerToken 完整token
      * @return {@link Boolean}
      */
     public Boolean invalidateJwtToken(String headerToken) {
         JWTVerifier verifier = JWT.require(createAlgorithm()).build();
-        if(!checkJwtToken(headerToken)) return false;
+        if(!checkJwtToken(headerToken)) {
+            return false;
+        }
         String token = headerToken.substring(7);
         try {
             DecodedJWT decodedJwt = verifier.verify(token);
@@ -145,14 +175,16 @@ public class JwtUtils {
 
     /**
      * 删除令牌，将令牌加入黑名单
-     * @param uuid
-     * @param expire
+     * @param uuid 令牌uuid
+     * @param expire 过期时间
      * @return boolean
      */
     private boolean deleteJwtToken(String uuid, Date expire) {
-        if(isInJwtBlack(uuid)) return false;
+        if(isInJwtBlack(uuid)) {
+            return false;
+        }
         //计算剩余时间
-        long time = Math.max(expire.getTime() - new Date().getTime(),1);
+        long time = Math.max(expire.getTime() - System.currentTimeMillis(),1);
         //加入黑名单
         stringRedisTemplate.opsForValue().set(Const.BLACK_JWT + uuid, "", time, TimeUnit.MILLISECONDS);
         return true;
@@ -160,7 +192,7 @@ public class JwtUtils {
 
     /**
      * 判断令牌是否已存在于黑名单
-     * @param uuid
+     * @param uuid 令牌uuid
      * @return boolean
      */
     private boolean isInJwtBlack(String uuid) {

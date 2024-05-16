@@ -7,6 +7,9 @@ import lombok.Data;
 
 import java.util.Date;
 
+/**
+ * @author ChangxueDeng
+ */
 @Data
 @AllArgsConstructor
 @TableName(value = "client")

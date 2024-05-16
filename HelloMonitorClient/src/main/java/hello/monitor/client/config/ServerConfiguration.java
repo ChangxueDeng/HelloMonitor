@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
+ * 连接服务器配置类
  * @author ChangxueDeng
  */
 @Slf4j
@@ -26,6 +27,11 @@ public class ServerConfiguration{
     private NetUtils netUtils;
     @Resource
     private MonitorUtils monitorUtils;
+
+    /**
+     * 创建连接配置
+     * @return {@link ConnectionConfig}
+     */
     @Bean
     ConnectionConfig connectionConfig() {
         log.info("正在加载服务端连接配置...");
@@ -36,6 +42,11 @@ public class ServerConfiguration{
         System.out.println(monitorUtils.monitorBaseDetail());
         return config;
     }
+
+    /**
+     * 注册到服务端
+     * @return {@link ConnectionConfig}
+     */
     private ConnectionConfig registerToServer() {
         Scanner scanner = new Scanner(System.in);
         String token, address;
@@ -49,6 +60,11 @@ public class ServerConfiguration{
         this.savaConfigurationToFile(config);
         return config;
     }
+
+    /**
+     * 保存连接配置到文件
+     * @param config 连接配置
+     */
     private void savaConfigurationToFile(ConnectionConfig config) {
         File dir = new File("config");
         if (!dir.exists() && dir.mkdir()) {
@@ -62,6 +78,11 @@ public class ServerConfiguration{
         }
         log.info("保存配置文件成功");
     }
+
+    /**
+     * 从文件读取连接配置
+     * @return {@link ConnectionConfig}
+     */
     private ConnectionConfig readConfigurationFromFile() {
         File file = new File("config/server.json");
         if (file.exists()) {

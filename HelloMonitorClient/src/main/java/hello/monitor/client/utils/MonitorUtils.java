@@ -10,18 +10,27 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.software.os.OperatingSystem;
-import oshi.util.FormatUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.NetworkInterface;
 import java.util.*;
 
+/**
+ * 监控工具类
+ * @author ChangxueDeng
+ * @date 2024/05/16
+ */
 @Slf4j
 @Component
 public class MonitorUtils {
     private final SystemInfo info = new SystemInfo();
     private final Properties properties = System.getProperties();
+
+    /**
+     * 获取客户端基本信息
+     * @return {@link BaseDetail}
+     */
     public BaseDetail monitorBaseDetail() {
         OperatingSystem os = info.getOperatingSystem();
         HardwareAbstractionLayer hardware = info.getHardware();
@@ -39,6 +48,11 @@ public class MonitorUtils {
                 .setDisk(diskSize)
                 .setIp(ip);
     }
+
+    /**
+     * 获取客户端运行时信息
+     * @return {@link RuntimeDetail}
+     */
     public RuntimeDetail monitorRuntimeDetail() {
         double statisticTime = 0.5;
         try {
@@ -71,6 +85,13 @@ public class MonitorUtils {
         }
         return null;
     }
+
+    /**
+     * 计算cpu使用率
+     * @param processor 处理器
+     * @param prevTicks cup调度刻度
+     * @return double
+     */
     private double calculateCpuUsage(CentralProcessor processor, long[] prevTicks) {
         long[] ticks = processor.getSystemCpuLoadTicks();
         long nice = ticks[CentralProcessor.TickType.NICE.getIndex()]
@@ -93,6 +114,11 @@ public class MonitorUtils {
         return (cSys + cUser) * 1.0 / totalCpu;
     }
 
+    /**
+     * 寻找网络接口
+     * @param hardware 硬件抽象层
+     * @return {@link NetworkIF}
+     */
     private NetworkIF findNetworkInterface(HardwareAbstractionLayer hardware) {
         try {
             ArrayList<NetworkIF> preNet = new ArrayList<>();
@@ -116,7 +142,6 @@ public class MonitorUtils {
                     }
                 }
             }
-//            System.out.println("大小: " + preNet.size() + " : " + preNet.get(0));
             return preNet.get(0);
         }catch (IOException e) {
             log.error("读取网络接口信息出错", e);

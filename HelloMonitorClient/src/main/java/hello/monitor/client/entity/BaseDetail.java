@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
+ * 客户端基本信息
  * @author ChangxueDeng
  */
 @Data

@@ -10,6 +10,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
 /**
+ * 监控任务
  * @author ChangxueDeng
  */
 @Component
@@ -19,6 +20,11 @@ public class MonitorJob extends QuartzJobBean {
     @Resource
     NetUtils netUtils;
 
+    /**
+     * 运行时信息发送监控任务
+     * @param context 定时上下文
+     * @throws JobExecutionException 任务执行异常
+     */
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         RuntimeDetail runtimeDetail = monitorUtils.monitorRuntimeDetail();

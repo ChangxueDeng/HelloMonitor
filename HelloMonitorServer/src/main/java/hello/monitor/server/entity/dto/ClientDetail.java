@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+/**
+ * @author ChangxueDeng
+ */
 @Data
 @TableName(value = "client_detail")
 public class ClientDetail {

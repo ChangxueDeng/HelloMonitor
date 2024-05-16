@@ -3,6 +3,11 @@ package hello.monitor.client.entity;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+/**
+ * 客户端运行时信息
+ * @author ChangxueDeng
+ * @date 2024/05/16
+ */
 @Data
 @Accessors(chain = true)
 public class RuntimeDetail {

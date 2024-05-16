@@ -33,7 +33,7 @@ const showDetail = (id) => {
     <div class="server-list">
       <preview-card v-for="item in list" :data="item" :update="getList" @click="showDetail(item.id)"></preview-card>
     </div>
-    <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="600"
+    <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="700"
                direction="ttb" style="justify-items: center;" @close="detail.id = -1" :with-header="false">
       <client-details :id="detail.id" :update="getList"></client-details>
     </el-drawer>

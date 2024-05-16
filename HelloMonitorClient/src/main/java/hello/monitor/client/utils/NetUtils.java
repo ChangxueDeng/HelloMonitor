@@ -7,18 +7,17 @@ import hello.monitor.client.entity.Response;
 import hello.monitor.client.entity.RuntimeDetail;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 /**
+ * 网络工具类
  * @author ChangxueDeng
  */
 @Slf4j
@@ -28,6 +27,13 @@ public class NetUtils {
     @Resource
     ConnectionConfig config;
     private final HttpClient client = HttpClient.newHttpClient();
+
+    /**
+     * 注册客户端
+     * @param address 服务端ip:端口
+     * @param token 客户端token
+     * @return boolean
+     */
     public boolean registerToServer(String address, String token) {
         log.info("正在向服务端注册，请稍候...");
         Response response = this.doGet("/register", address, token);
@@ -38,6 +44,12 @@ public class NetUtils {
         }
         return response.success();
     }
+
+    /**
+     * 向服务端更新客户端基本信息
+     *
+     * @param baseDetail 客户端基本信息
+     */
     public void updateBaseDetail(BaseDetail baseDetail) {
         Response response = this.doPost("/details", baseDetail);
         if (response.success()) {
@@ -46,6 +58,11 @@ public class NetUtils {
             log.error("客户端更新基本信息失败:{}", response.message());
         }
     }
+
+    /**
+     * 向服务端更新客户端运行时信息
+     * @param runtimeDetail 客户端运行时信息
+     */
     public void updateRuntimeDetail(RuntimeDetail runtimeDetail) {
         Response response = this.doPost("/runtime", runtimeDetail);
         if (response.success()) {
@@ -57,6 +74,14 @@ public class NetUtils {
     private Response doGet(String url) {
         return this.doGet(url, config.getAddress(), config.getToken());
     }
+
+    /**
+     * get请求
+     * @param url 请求地址
+     * @param address 服务端地址
+     * @param token 客户端token
+     * @return {@link Response}
+     */
     private Response doGet(String url, String address, String token) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -72,6 +97,13 @@ public class NetUtils {
             return Response.error(e);
         }
     }
+
+    /**
+     * post请求
+     * @param url 请求地址
+     * @param data 请求数据
+     * @return {@link Response}
+     */
     private Response doPost(String url, Object data) {
         try {
             String rawData = JSONObject.from(data).toJSONString();

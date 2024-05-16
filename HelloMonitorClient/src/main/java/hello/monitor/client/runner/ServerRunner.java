@@ -9,6 +9,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 /**
+ * 服务启动时向服务端更新基本信息
  * @author ChangxueDeng
  */
 @Component

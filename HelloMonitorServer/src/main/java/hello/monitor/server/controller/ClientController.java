@@ -23,16 +23,35 @@ public class ClientController {
     ClientService clientService;
     @Resource
     ControllerUtils controllerUtils;
+
+    /** 客户端注册
+     * @param token 注册token
+     * @return {@link Result}<{@link Void}>
+     */
     @GetMapping("/register")
     public Result<Void> clientRegister(@RequestHeader(Const.HEAD_TOKEN) String token) {
         return clientService.verifyAndRegister(token) ? Result.success() : Result.failure(StatusUtils.STATUS_UNAUTHORIZED, "客户端注册失败，请检查token是否正常");
     }
+
+    /**
+     * 更新客户端基本信息
+     * @param client 客户端
+     * @param vo 基本信息
+     * @return {@link Result}<{@link Void}>
+     */
     @PostMapping("/details")
     public Result<Void> updateClientDetails(@RequestAttribute(Const.CLIENT)Client client,
                                             @RequestBody @Valid ClientDetailVO vo) {
         clientService.updateClientDetail(client, vo);
         return Result.success();
     }
+
+    /**
+     * 更新客户端运行时信息
+     * @param client 客户端
+     * @param vo 运行时信息
+     * @return {@link Result}<{@link Void}>
+     */
     @PostMapping("/runtime")
     public Result<Void> updateClientRuntimeDetails(@RequestAttribute(Const.CLIENT)Client client,
                                                    @RequestBody @Valid RuntimeDetailVO vo) {
