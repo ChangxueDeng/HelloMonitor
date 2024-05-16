@@ -1,13 +1,34 @@
 <script setup>
 
 import PreviewCard from "@/components/PreviewCard.vue";
-import {reactive, ref} from "vue";
+import {computed, reactive, ref} from "vue";
 import {get} from "@/net/index.js";
 import ClientDetails from "@/components/ClientDetails.vue";
 import Register from "@/components/Register.vue"
 import {Plus} from "@element-plus/icons-vue";
 import {ElMessageBox} from "element-plus";
+
+
+const location = [
+  {name: 'cn', desc: '中国大陆'},
+  {name: 'us', desc: '美国'},
+  {name: 'jp', desc: '日本'},
+  {name: 'de', desc: '德国'},
+  {name: 'kr', desc: '韩国'},
+  {name: 'hk', desc: '中国香港'},
+  {name: 'sg', desc: '新加坡'},
+]
+
 const list = ref([])
+const selectedLocation = ref([])
+
+const filterList = computed(()=> {
+  if (selectedLocation.value.length === 0) {
+    return list.value
+  } else {
+    return list.value.filter(i => selectedLocation.value.indexOf(i.location) >= 0)
+  }
+})
 
 function getList(){
   get('api/monitor/list',(data)=> {
@@ -45,10 +66,17 @@ const refresh = () => {
         <el-button :icon="Plus" @click="register.show = true" type="primary">新增主机</el-button>
       </div>
     </div>
-
     <el-divider style="margin: 10px 0"></el-divider>
+    <div style="margin-bottom: 20px">
+      <el-checkbox-group v-model="selectedLocation">
+        <el-checkbox v-for="i in location" :key="i" :label="i.name" border style="margin-right: 10px">
+          <span :class="`flag-icon flag-icon-${i.name}`"></span>
+          <span style="font-size: 13px; margin-left: 10px">{{i.desc}}</span>
+        </el-checkbox>
+      </el-checkbox-group>
+    </div>
     <div class="server-list" v-if="list.length">
-      <preview-card v-for="item in list" :data="item" :update="getList" @click="showDetail(item.id)"></preview-card>
+      <preview-card v-for="item in filterList" :data="item" :update="getList" @click="showDetail(item.id)"></preview-card>
     </div>
     <el-empty v-else-if="list.length === 0" description="主机列表为空，立即点击右上角按钮添加新主机！"></el-empty>
     <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="700"
