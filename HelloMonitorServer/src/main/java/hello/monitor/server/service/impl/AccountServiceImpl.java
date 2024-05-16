@@ -1,6 +1,9 @@
 package hello.monitor.server.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import hello.monitor.server.entity.vo.request.UserChangePasswoedVO;
+import hello.monitor.server.entity.vo.request.UserResetEmailVO;
 import jakarta.annotation.Resource;
 import hello.monitor.server.entity.dto.Account;
 import hello.monitor.server.entity.vo.request.ResetConfirmVO;
@@ -135,6 +138,35 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         return null;
     }
 
+    @Override
+    public String changePassword(int id, UserChangePasswoedVO vo) {
+        Account account = this.findAccountById(id);
+        if (account == null) {
+            return "用户不存在";
+        } else if (!passwordEncoder.matches(vo.getOldPassword(), account.getPassword())) {
+            return "原密码不正确";
+        }
+        this.update().eq("id", id).set("password", passwordEncoder.encode(vo.getNewPassword())).update();
+        return null;
+    }
+
+    @Override
+    public String resetEmail(int id, UserResetEmailVO vo) {
+        if (existAccountByEmail(vo.getEmail())) {
+            return "邮箱已被占用";
+        }else if (!this.exists(Wrappers.<Account>query().eq("id", id))) {
+            return "用户不存在";
+        }
+        String code = getEmailVerify(Const.LIMIT_EMAIL_DATA + vo.getEmail());
+        if (code == null) {
+            return "验证码已失效";
+        }else if (!code.equals(vo.getCode())) {
+            return "验证码错误";
+        }
+        this.update().eq("id", id).set("email", vo.getEmail()).update();
+        deleteEmailVerify(Const.LIMIT_EMAIL_DATA + vo.getEmail());
+        return null;
+    }
 
     /**
      * 将邮箱验证码存入redis，避免重复获取

@@ -30,14 +30,16 @@ public class RabbitmqListener {
         String code = map.get("code").toString();
         //根据类型创建邮件消息
         SimpleMailMessage message = switch (type){
-            case "register"->
-                createMessage("注册", "验证码为：" + code + "，有效时间3分钟", email);
+            case "modify"->
+                createMessage("重置邮箱", "验证码为：" + code + "，有效时间3分钟", email);
             case "reset"->
                 createMessage("重置密码", "验证码为：" + code + "，有效时间3分钟", email);
             default-> null;
         };
         //发送
-        if(message == null) return;
+        if(message == null) {
+            return;
+        }
         sender.send(message);
 
     }

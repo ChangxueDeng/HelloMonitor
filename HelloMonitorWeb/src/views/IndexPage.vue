@@ -40,7 +40,9 @@ const dark = ref(useDark())
       <el-main class="main-main">
         <router-view v-slot="{ Component }">
           <transition name=".el-zoom-in-center" mode="out-in">
-            <component :is="Component"></component>
+            <keep-alive exclude="Security">
+              <component :is="Component"></component>
+            </keep-alive>
           </transition>
         </router-view>
       </el-main>

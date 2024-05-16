@@ -2,9 +2,7 @@ package hello.monitor.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import hello.monitor.server.entity.dto.Account;
-import hello.monitor.server.entity.vo.request.RegisterVO;
-import hello.monitor.server.entity.vo.request.ResetConfirmVO;
-import hello.monitor.server.entity.vo.request.ResetPasswordVO;
+import hello.monitor.server.entity.vo.request.*;
 
 /**
  * 用户的方法
@@ -47,7 +45,8 @@ public interface AccountService extends IService<Account> {
      * @return {@link String}
      */
     String resetPassword(ResetPasswordVO resetPasswordVO);
-
+    String changePassword(int id, UserChangePasswoedVO vo);
+    String resetEmail(int id, UserResetEmailVO vo);
 
 
 }

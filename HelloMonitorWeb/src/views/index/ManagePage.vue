@@ -7,8 +7,9 @@ import ClientDetails from "@/components/ClientDetails.vue";
 import Register from "@/components/Register.vue"
 import {Plus} from "@element-plus/icons-vue";
 import {ElMessageBox} from "element-plus";
+import {useRoute} from "vue-router";
 
-
+const route = useRoute()
 const location = [
   {name: 'cn', desc: '中国大陆'},
   {name: 'us', desc: '美国'},
@@ -31,15 +32,20 @@ const filterList = computed(()=> {
 })
 
 function getList(){
-  get('api/monitor/list',(data)=> {
-    list.value = data
-  })
+  if (route.name === 'manage') {
+    get('api/monitor/list',(data)=> {
+      list.value = data
+    })
+    console.log(123)
+  }
+
 }
 const register = reactive({
   show: false,
   token :''
 })
 getList()
+
 setInterval(getList,10000)
 const detail = reactive({
   show: false,
