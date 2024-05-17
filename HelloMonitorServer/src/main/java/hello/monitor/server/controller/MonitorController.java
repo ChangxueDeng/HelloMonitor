@@ -1,5 +1,6 @@
 package hello.monitor.server.controller;
 
+import com.alibaba.fastjson2.JSONArray;
 import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.vo.request.RenameClientVO;
 import hello.monitor.server.entity.vo.request.RenameNodeVO;
@@ -8,7 +9,9 @@ import hello.monitor.server.entity.vo.response.ClientDetailsVO;
 import hello.monitor.server.entity.vo.response.ClientPreviewVO;
 import hello.monitor.server.entity.vo.response.ClientSimpleVO;
 import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
+import hello.monitor.server.mapper.AccountMapper;
 import hello.monitor.server.service.ClientService;
+import hello.monitor.server.utils.Const;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +28,23 @@ import java.util.List;
 public class MonitorController {
     @Resource
     ClientService clientService;
+    @Resource
+    AccountMapper accountMapper;
 
     /**
      * 获取客户端列表
      * @return {@link Result}<{@link List}<{@link ClientPreviewVO}>>
      */
     @GetMapping("/list")
-    public Result<List<ClientPreviewVO>> getClientList(){
-        return Result.success(clientService.getClientList());
+    public Result<List<ClientPreviewVO>> getClientList(@RequestAttribute(Const.USER_ROLE) String role,
+                                                       @RequestAttribute(Const.USER_ID) int id){
+        List<ClientPreviewVO> clients = clientService.getClientList();
+        if (role.substring(5).equals(Const.ROLE_ADMIN)) {
+            return Result.success(clients);
+        } else {
+            JSONArray ids = getPermissionClients(id);
+            return Result.success(clients.stream().filter(c -> ids.contains(c.getId())).toList());
+        }
     }
 
     /**
@@ -41,9 +53,15 @@ public class MonitorController {
      * @return {@link Result}<{@link Void}>
      */
     @PostMapping("/rename")
-    public Result<Void> renameClient(@RequestBody @Valid RenameClientVO vo) {
-        clientService.renameClient(vo);
-        return Result.success();
+    public Result<Void> renameClient(@RequestBody @Valid RenameClientVO vo,
+                                     @RequestAttribute(Const.USER_ROLE) String role,
+                                     @RequestAttribute(Const.USER_ID) int id) {
+        if (this.isPermissionForClient(role, id, vo.getId())) {
+            clientService.renameClient(vo);
+            return Result.success();
+        } else {
+            return Result.isNoPermission();
+        }
     }
 
     /**
@@ -52,9 +70,16 @@ public class MonitorController {
      * @return {@link Result}<{@link Void}>
      */
     @PostMapping("/rename-node")
-    public Result<Void> renameNode(@RequestBody @Valid RenameNodeVO vo) {
-        clientService.renameNode(vo);
-        return Result.success();
+    public Result<Void> renameNode(@RequestBody @Valid RenameNodeVO vo,
+                                   @RequestAttribute(Const.USER_ROLE) String role,
+                                   @RequestAttribute(Const.USER_ID) int id) {
+        if (this.isPermissionForClient(role, id, vo.getClientId())) {
+            clientService.renameNode(vo);
+            return Result.success();
+        } else {
+            return Result.isNoPermission();
+        }
+
     }
 
     /**
@@ -64,8 +89,15 @@ public class MonitorController {
      * @return {@link Result}<{@link ClientDetailsVO}>
      */
     @GetMapping("/details")
-    public Result<ClientDetailsVO> getClientDetails(int clientId) {
-        return Result.success(clientService.getClientDetails(clientId));
+    public Result<ClientDetailsVO> getClientDetails(int clientId,
+                                                    @RequestAttribute(Const.USER_ROLE) String role,
+                                                    @RequestAttribute(Const.USER_ID) int id) {
+        if (isPermissionForClient(role, id, clientId)) {
+            return Result.success(clientService.getClientDetails(clientId));
+
+        } else {
+            return Result.isNoPermission();
+        }
     }
 
     /**
@@ -74,8 +106,14 @@ public class MonitorController {
      * @return {@link Result}<{@link RuntimeHistoryVO}>
      */
     @GetMapping("/runtime-history")
-    public Result<RuntimeHistoryVO> runtimeHistory(int clientId) {
-        return Result.success(clientService.getClientRuntimeHistory(clientId));
+    public Result<RuntimeHistoryVO> runtimeHistory(int clientId,
+                                                   @RequestAttribute(Const.USER_ROLE) String role,
+                                                   @RequestAttribute(Const.USER_ID) int id) {
+        if (isPermissionForClient(role, id, clientId)) {
+            return Result.success(clientService.getClientRuntimeHistory(clientId));
+        } else {
+            return Result.isNoPermission();
+        }
     }
 
     /**
@@ -84,20 +122,53 @@ public class MonitorController {
      * @return {@link Result}<{@link RuntimeDetailVO}>
      */
     @GetMapping("/runtime-now")
-    public Result<RuntimeDetailVO> runtimeNow(int clientId) {
-        return Result.success(clientService.getClientRuntimeDetailsNow(clientId));
+    public Result<RuntimeDetailVO> runtimeNow(int clientId,
+                                              @RequestAttribute(Const.USER_ROLE) String role,
+                                              @RequestAttribute(Const.USER_ID) int id) {
+        if (isPermissionForClient(role, id, clientId)) {
+            return Result.success(clientService.getClientRuntimeDetailsNow(clientId));
+        } else {
+            return Result.isNoPermission();
+        }
     }
     @GetMapping("/register")
-    public Result<String> register() {
-        return Result.success(clientService.registerToken());
+    public Result<String> register(@RequestAttribute(Const.USER_ROLE) String role) {
+        if (isRoleAdmin(role)) {
+            return Result.success(clientService.registerToken());
+        } else {
+            return Result.isNoPermission();
+        }
     }
     @GetMapping("/delete")
-    public Result<Void> deleteClient(int clientId) {
-        clientService.deleteClient(clientId);
-        return Result.success();
+    public Result<Void> deleteClient(int clientId,@RequestAttribute(Const.USER_ROLE) String role) {
+        if (isRoleAdmin(role)) {
+            clientService.deleteClient(clientId);
+            return Result.success();
+        } else {
+            return Result.isNoPermission();
+        }
+
     }
     @GetMapping("/simple-list")
-    public Result<List<ClientSimpleVO>> getClientSimpleList() {
-        return Result.success(clientService.getClientSimpleList());
+    public Result<List<ClientSimpleVO>> getClientSimpleList(@RequestAttribute(Const.USER_ROLE) String role) {
+        if (isRoleAdmin(role)) {
+            return Result.success(clientService.getClientSimpleList());
+        } else {
+            return Result.isNoPermission();
+        }
+    }
+
+    private JSONArray getPermissionClients(int uid) {
+        return JSONArray.parse(accountMapper.selectById(uid).getClients());
+    }
+    private boolean isRoleAdmin(String role) {
+        return role.substring(5).equals(Const.ROLE_ADMIN);
+    }
+    private boolean isPermissionForClient(String role, int uid, int clientId) {
+        if (isRoleAdmin(role)) {
+            return true;
+        } else {
+            return getPermissionClients(uid).contains(clientId);
+        }
     }
 }

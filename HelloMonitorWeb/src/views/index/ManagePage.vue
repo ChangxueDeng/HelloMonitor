@@ -7,6 +7,8 @@ import ClientDetails from "@/components/ClientDetails.vue";
 import Register from "@/components/Register.vue"
 import {Plus} from "@element-plus/icons-vue";
 import {useRoute} from "vue-router";
+import {useStore} from "@/store/index.js";
+const store = useStore()
 
 const route = useRoute()
 const location = [
@@ -68,7 +70,7 @@ const refresh = () => {
         <div class="desc">在这里管理所有主机实例</div>
       </div>
       <div>
-        <el-button :icon="Plus" @click="register.show = true" type="primary">新增主机</el-button>
+        <el-button :disabled="!store.isAdmin" :icon="Plus" @click="register.show = true" type="primary">新增主机</el-button>
       </div>
     </div>
     <el-divider style="margin: 10px 0"></el-divider>

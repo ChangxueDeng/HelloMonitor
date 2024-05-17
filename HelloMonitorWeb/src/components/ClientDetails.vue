@@ -7,7 +7,9 @@ import {precessStatus, findByUnit, cpuNameToImage, osNameToIcon, copyIp, rename}
 import {ElMessage, ElMessageBox} from "element-plus";
 import RuntimeHistory from "@/components/RuntimeHistory.vue";
 import {Delete} from "@element-plus/icons-vue";
+import {useStore} from "@/store/index.js";
 
+const store = useStore()
 const location = [
   {name: 'cn', desc: '中国大陆'},
   {name: 'us', desc: '美国'},
@@ -103,7 +105,7 @@ watch(()=> props.id, value => init(value), {immediate:true})
           <div class="title">
             <i class="fa-solid fa-server"></i>服务器信息
           </div>
-          <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)">删除此主机</el-button>
+          <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)" :disabled="!store.isAdmin">删除此主机</el-button>
         </div>
 
         <el-divider style="margin: 10px 0"></el-divider>

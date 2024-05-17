@@ -7,7 +7,8 @@ import {ref} from "vue";
 import {useDark} from "@vueuse/core";
 import Tabltem from "@/components/Tabltem.vue";
 import {useRoute} from "vue-router";
-
+import {useStore} from "@/store/index.js";
+const store = useStore()
 const route = useRoute()
 const dark = ref(useDark())
 </script>
@@ -25,6 +26,10 @@ const dark = ref(useDark())
           <Tabltem name="导航2" :activate="route.name === 'security'" @click="router.push('/index/security'); tabActive = 2"></Tabltem>
           <el-switch  style="margin: 0 20px" v-model="dark" active-color="#424242" :active-action-icon="Moon" :inactive-action-icon="Sunny">
           </el-switch>
+          <div style="display: flex; flex-direction: column">
+            <el-tag>{{!store.isAdmin ? '子账户' : '管理员'}}</el-tag>
+            <el-text>{{store.user.email}}</el-text>
+          </div>
           <el-dropdown>
             <el-avatar></el-avatar>
             <template #dropdown>

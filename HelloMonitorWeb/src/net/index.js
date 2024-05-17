@@ -1,7 +1,7 @@
 import axios from "axios";
 import {ElMessage, ElMessageBox} from "element-plus";
 import router from "@/router/index.js";
-
+import {useStore} from "@/store/index.js";
 const defaultError = (error)=>{
     console.error(error)
     ElMessage.error("发生了一些错误，请联系管理员")
@@ -110,6 +110,10 @@ function login(username, password, remember, success, failure = defaultFailure){
     },{"Content-type":"application/x-www-form-urlencoded"}, (data)=>{
         //判断是否为封禁的账户
             storeAccessToken(data.token, remember, data.expire)
+            const store = useStore()
+            store.user.email = data.email
+            store.user.username = data.username
+            store.user.role = data.role
             ElMessage.success(`登陆成功, 欢迎 ${data.username}`)
             router.push("/index")
     }, failure)

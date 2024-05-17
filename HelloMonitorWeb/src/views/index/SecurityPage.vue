@@ -6,7 +6,9 @@ import {Refresh, Switch, Lock, Plus, Delete} from "@element-plus/icons-vue";
 import router from "@/router/index.js";
 import {logout} from "@/net/index.js";
 import CreateSubAccount from "@/components/CreateSubAccount.vue";
+import {useStore} from "@/store/index.js";
 
+const store = useStore()
 const emailFormRef = ref()
 const form = reactive({
   password: '',
@@ -109,7 +111,9 @@ function getSimpleList(){
 }
 const createSub = ref(false)
 const subAccountList = ref([])
-getSimpleList()
+
+if (store.isAdmin) {getSimpleList()}
+if (store.isAdmin) {getSubAccountList()}
 function getSubAccountList(){
   get('api/user/sub/list', (data)=>{subAccountList.value = data})
 }
@@ -119,7 +123,7 @@ function deleteSubAccount(id){
     getSubAccountList()
   })
 }
-getSubAccountList()
+
 </script>
 
 <template>
@@ -190,11 +194,12 @@ getSubAccountList()
                      @click="createSub = true" plain>添加更多子用户</el-button>
         </div>
         <div v-else>
-        <el-empty :image-size="100" description="子用户为空">
+        <el-empty :image-size="100" description="子用户为空" v-if="store.isAdmin">
           <el-button :icon="Plus" type="primary" @click="createSub=true">添加子用户</el-button>
         </el-empty>
+        <el-empty :image-size="100" description="子账户管理只能由管理员进行操作" v-else></el-empty>
         </div>
-      </div>
+      </div >
     </div>
     <el-drawer v-model="createSub" @close="createSub = false" :with-header="false" :size="400">
       <create-sub-account :clients="simpleList" @create="getSubAccountList();createSub = false"></create-sub-account>
