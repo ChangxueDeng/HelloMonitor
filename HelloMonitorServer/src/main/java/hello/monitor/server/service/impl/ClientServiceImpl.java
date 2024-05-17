@@ -4,16 +4,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import hello.monitor.server.entity.dto.Client;
 import hello.monitor.server.entity.dto.ClientDetail;
-import hello.monitor.server.entity.vo.request.ClientDetailVO;
-import hello.monitor.server.entity.vo.request.RenameClientVO;
-import hello.monitor.server.entity.vo.request.RenameNodeVO;
-import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
-import hello.monitor.server.entity.vo.response.ClientDetailsVO;
-import hello.monitor.server.entity.vo.response.ClientPreviewVO;
-import hello.monitor.server.entity.vo.response.ClientSimpleVO;
-import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
+import hello.monitor.server.entity.dto.ClientSsh;
+import hello.monitor.server.entity.vo.request.*;
+import hello.monitor.server.entity.vo.response.*;
 import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
+import hello.monitor.server.mapper.ClientSshMapper;
 import hello.monitor.server.service.ClientService;
 import hello.monitor.server.utils.Const;
 import hello.monitor.server.utils.InfluxDbUtils;
@@ -33,6 +29,8 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     ClientDetailMapper detailMapper;
     @Resource
     InfluxDbUtils influxDbUtils;
+    @Resource
+    ClientSshMapper clientSshMapper;
 
     private String registerToken = this.generateNewToken();
     private final int TOKEN_LENGTH = 24;
@@ -160,6 +158,35 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
             BeanUtils.copyProperties(detailMapper.selectById(client.getId()), vo);
             return vo;
         }).toList();
+    }
+
+    @Override
+    public void saveSshConnection(SshConnectionVO vo) {
+        Client client = clientIdCache.get(vo.getId());
+        if (client != null) {
+            ClientSsh ssh = new ClientSsh();
+            BeanUtils.copyProperties(vo, ssh);
+            if (clientSshMapper.exists(Wrappers.<ClientSsh>query().eq("id", ssh.getId()))) {
+                clientSshMapper.updateById(ssh);
+            } else {
+                clientSshMapper.insert(ssh);
+            }
+        }
+    }
+
+    @Override
+    public SshConfigVO getSshConfig(int clientId) {
+        ClientSsh ssh = clientSshMapper.selectById(clientId);
+        SshConfigVO vo = new SshConfigVO();
+        if (ssh != null) {
+            BeanUtils.copyProperties(ssh, vo);
+        } else {
+            ClientDetail detail = detailMapper.selectById(clientId);
+            vo.setId(clientId);
+            vo.setIp(detail.getIp());
+            vo.setPort(22);
+        }
+        return vo;
     }
 
     @PostConstruct

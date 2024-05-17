@@ -6,7 +6,7 @@ import {get, post} from "@/net/index.js"
 import {precessStatus, findByUnit, cpuNameToImage, osNameToIcon, copyIp, rename} from "@/tools/tools.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 import RuntimeHistory from "@/components/RuntimeHistory.vue";
-import {Delete} from "@element-plus/icons-vue";
+import {Connection, Delete} from "@element-plus/icons-vue";
 import {useStore} from "@/store/index.js";
 
 const store = useStore()
@@ -19,7 +19,7 @@ const location = [
   {name: 'hk', desc: '中国香港'},
   {name: 'sg', desc: '新加坡'},
 ]
-const emits = defineEmits(['delete'])
+const emits = defineEmits(['delete','terminal'])
 const props = defineProps({
   id : Number,
   update: Function
@@ -105,7 +105,10 @@ watch(()=> props.id, value => init(value), {immediate:true})
           <div class="title">
             <i class="fa-solid fa-server"></i>服务器信息
           </div>
-          <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)" :disabled="!store.isAdmin">删除此主机</el-button>
+          <div>
+            <el-button :icon="Connection" type="primary" plain @click="emits('terminal')">连接此主机</el-button>
+            <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)" :disabled="!store.isAdmin">删除此主机</el-button>
+          </div>
         </div>
 
         <el-divider style="margin: 10px 0"></el-divider>

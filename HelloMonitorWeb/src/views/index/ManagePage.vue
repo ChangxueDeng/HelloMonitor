@@ -8,6 +8,7 @@ import Register from "@/components/Register.vue"
 import {Plus} from "@element-plus/icons-vue";
 import {useRoute} from "vue-router";
 import {useStore} from "@/store/index.js";
+import Terminal from "@/components/ConnectionCard.vue";
 const store = useStore()
 
 const route = useRoute()
@@ -24,6 +25,10 @@ const location = [
 const list = ref([])
 const selectedLocation = ref([])
 
+const terminals = reactive({
+  show: false,
+  id: -1
+})
 const filterList = computed(()=> {
   if (selectedLocation.value.length === 0) {
     return list.value
@@ -41,6 +46,11 @@ function getList(){
   }
 
 }
+function openTerminal(id) {
+  terminals.show = true
+  terminals.id = id
+  detail.show = false
+}
 const register = reactive({
   show: false,
   token :''
@@ -48,6 +58,7 @@ const register = reactive({
 getList()
 
 setInterval(getList,10000)
+
 const detail = reactive({
   show: false,
   id: -1
@@ -88,11 +99,21 @@ const refresh = () => {
     <el-empty v-else-if="list.length === 0" description="主机列表为空，立即点击右上角按钮添加新主机！"></el-empty>
     <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="700"
                direction="ttb" style="justify-items: center;" @close="detail.id = -1" :with-header="false">
-      <client-details :id="detail.id" :update="getList" @delete="getList"></client-details>
+      <client-details :id="detail.id" :update="getList" @delete="getList" @terminal="openTerminal(detail.id)"></client-details>
     </el-drawer>
     <el-drawer v-model="register.show" @close="register.show = false" direction="ttb"
                style="justify-items: center;" :size="350" :with-header="false" @open="refresh()">
       <register :token="register.token"></register>
+    </el-drawer>
+    <el-drawer :size="700" v-model="terminals.show" direction="ttb" @close="terminals.show = false"
+               style="width: 800px" :close-on-click-modal="false">
+      <template #header>
+        <div>
+          <div style="font-size: 18px; font-weight: bold; color:var(--el-color-primary);">SSH远程连接</div>
+          <div style="font-size: 14px;color: grey">远程连接将由服务端完成，在内网环境也可正常使用</div>
+        </div>
+      </template>
+      <terminal :id="terminals.id"></terminal>
     </el-drawer>
   </div>
 </template>

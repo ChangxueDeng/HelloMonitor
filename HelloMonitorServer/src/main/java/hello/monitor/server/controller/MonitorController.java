@@ -5,10 +5,8 @@ import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.vo.request.RenameClientVO;
 import hello.monitor.server.entity.vo.request.RenameNodeVO;
 import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
-import hello.monitor.server.entity.vo.response.ClientDetailsVO;
-import hello.monitor.server.entity.vo.response.ClientPreviewVO;
-import hello.monitor.server.entity.vo.response.ClientSimpleVO;
-import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
+import hello.monitor.server.entity.vo.request.SshConnectionVO;
+import hello.monitor.server.entity.vo.response.*;
 import hello.monitor.server.mapper.AccountMapper;
 import hello.monitor.server.service.ClientService;
 import hello.monitor.server.utils.Const;
@@ -153,6 +151,27 @@ public class MonitorController {
     public Result<List<ClientSimpleVO>> getClientSimpleList(@RequestAttribute(Const.USER_ROLE) String role) {
         if (isRoleAdmin(role)) {
             return Result.success(clientService.getClientSimpleList());
+        } else {
+            return Result.isNoPermission();
+        }
+    }
+    @PostMapping("/ssh-sava")
+    public Result<Void> savaSshConnection(@RequestBody SshConnectionVO vo,
+                                          @RequestAttribute(Const.USER_ROLE) String role,
+                                          @RequestAttribute(Const.USER_ID) int id) {
+        if (isPermissionForClient(role, id, vo.getId())) {
+            clientService.saveSshConnection(vo);
+            return Result.success();
+        } else {
+            return Result.isNoPermission();
+        }
+    }
+    @GetMapping("/ssh")
+    public Result<SshConfigVO> sshConfig(int clientId,
+                                         @RequestAttribute(Const.USER_ROLE) String role,
+                                         @RequestAttribute(Const.USER_ID) int id) {
+        if (isPermissionForClient(role, id, clientId)) {
+            return Result.success(clientService.getSshConfig(clientId));
         } else {
             return Result.isNoPermission();
         }

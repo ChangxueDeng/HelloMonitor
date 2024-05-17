@@ -2,14 +2,8 @@ package hello.monitor.server.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import hello.monitor.server.entity.dto.Client;
-import hello.monitor.server.entity.vo.request.ClientDetailVO;
-import hello.monitor.server.entity.vo.request.RenameClientVO;
-import hello.monitor.server.entity.vo.request.RenameNodeVO;
-import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
-import hello.monitor.server.entity.vo.response.ClientDetailsVO;
-import hello.monitor.server.entity.vo.response.ClientPreviewVO;
-import hello.monitor.server.entity.vo.response.ClientSimpleVO;
-import hello.monitor.server.entity.vo.response.RuntimeHistoryVO;
+import hello.monitor.server.entity.vo.request.*;
+import hello.monitor.server.entity.vo.response.*;
 
 import java.util.List;
 
@@ -28,4 +22,6 @@ public interface ClientService extends IService<Client> {
     RuntimeHistoryVO getClientRuntimeHistory(int clientId);
     void deleteClient(int clientId);
     List<ClientSimpleVO> getClientSimpleList();
+    void saveSshConnection(SshConnectionVO vo);
+    SshConfigVO getSshConfig(int clientId);
 }
