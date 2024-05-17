@@ -9,10 +9,10 @@ defineProps({
   <div :class="`tab-item ${activate ? 'active' : ''}`">{{name}}</div>
 </template>
 
-<style scoped>
+<style lang="less" scoped>
 .tab-item{
   text-align: center;
-  width: 60px;
+  width: 100px;
   height: 60px;
   justify-items: center;
   box-sizing: border-box;

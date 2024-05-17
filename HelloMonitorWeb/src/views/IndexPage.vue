@@ -14,16 +14,13 @@ const dark = ref(useDark())
 </script>
 
 <template>
-<!--  <div>-->
-<!--    <el-button plain type="warning" @click="logout(()=> {router.push('/')})">退出登陆</el-button>-->
-<!--  </div>-->
   <div>
     <el-container class="main-container">
       <el-header class="main-header">
         <el-image style="height: 30px;" src="https://element-plus.org/images/element-plus-logo.svg"></el-image>
         <div class="tabs">
-          <Tabltem name="导航1" :activate="route.name === 'manage'" @click="router.push('/index'); tabActive = 1"></Tabltem>
-          <Tabltem name="导航2" :activate="route.name === 'security'" @click="router.push('/index/security'); tabActive = 2"></Tabltem>
+          <Tabltem name="管理面板" :activate="route.name === 'manage'" @click="router.push('/index'); tabActive = 1"></Tabltem>
+          <Tabltem name="安全设置" :activate="route.name === 'security'" @click="router.push('/index/security'); tabActive = 2"></Tabltem>
           <el-switch  style="margin: 0 20px" v-model="dark" active-color="#424242" :active-action-icon="Moon" :inactive-action-icon="Sunny">
           </el-switch>
           <div style="display: flex; flex-direction: column">

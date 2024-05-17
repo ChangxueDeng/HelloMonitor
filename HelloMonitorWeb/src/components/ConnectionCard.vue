@@ -2,6 +2,7 @@
 import {reactive, ref, watch} from "vue";
 import {get, post} from "@/net/index.js";
 import {ElMessage} from "element-plus";
+import Terminal from "@/components/Terminal.vue";
 const props = defineProps({
   id: Number,
 })
@@ -38,14 +39,16 @@ function savaSshConnection() {
         username:connection.username,
         password:connection.password
       }, ()=> {
+        state.value = 2
         ElMessage.success('连接保存成功，正在连接...')
+
       })
     }
   })
 }
 watch(() => props.id,id => {
   connection.loading = false
-  console.log(id)
+  state.value = 1
   if (id !== -1) {
     getSshConfig(id)
   }
@@ -57,9 +60,10 @@ watch(() => props.id,id => {
   <div style="width: 100%; height: 100%">
     <div class="login" v-loading="!connection.loading" v-if="state === 1">
       <i style="font-size: 50px" class="fa-solid fa-terminal"></i>
-      <div style="margin-top: 10px;font-weight: bold;font-size: 20px">服务端连接信息</div>
+      <div style="margin-top: 10px;font-weight: bold;font-size: 20px">客户端连接信息</div>
       <el-form style="width: 400px;margin: 20px auto" :model="connection"
-               :rules="rules" ref="formRef" label-width="150">
+               :rules="rules" ref="formRef" label-width="150" label-position="left">
+        <el-divider style="margin: 10px 0"></el-divider>
         <div style="display: flex;gap: 10px">
           <el-form-item style="width: 100%" label="服务器IP地址" prop="ip">
             <el-input v-model="connection.ip"/>
@@ -74,12 +78,13 @@ watch(() => props.id,id => {
         <el-form-item prop="password" label="登录密码">
           <el-input placeholder="请输入密码..." type="password" v-model="connection.password"/>
         </el-form-item>
-        <el-button type="success" plain @click="savaSshConnection">立即连接</el-button>
+        <el-divider style="margin: 10px 0"></el-divider>
+        <el-button type="success" plain @click="savaSshConnection" style="width: 150px">立即连接</el-button>
       </el-form>
     </div>
     <div v-if="state === 2">
       <div style="overflow: hidden;padding: 0 10px 10px 10px">
-        <terminal :id="id" @dispose="state = 1"/>
+        <terminal :id="props.id" @dispose="state = 1"/>
       </div>
     </div>
   </div>

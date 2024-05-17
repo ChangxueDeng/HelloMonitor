@@ -1,10 +1,14 @@
 package hello.monitor.server.fileter;
 
 
+import com.alibaba.fastjson2.JSONArray;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.dto.Client;
+import hello.monitor.server.mapper.AccountMapper;
+import hello.monitor.server.service.AccountService;
 import hello.monitor.server.service.ClientService;
+import hello.monitor.server.utils.StatusUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,10 +34,16 @@ public class JwtFilter extends OncePerRequestFilter {
     JwtUtils jwtUtils;
     @Resource
     ClientService clientService;
+    @Resource
+    AccountMapper accountMapper;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String headToken = request.getHeader(Const.HEAD_TOKEN);
         String uri = request.getRequestURI();
+        if (uri.startsWith("/terminal/")) {
+            headToken = "Bearer " + request.getQueryString();
+        }
         if (uri.startsWith("/monitor")) {
             if (!uri.endsWith("/register")) {
                 Client client = clientService.findClientByToken(headToken);
@@ -65,7 +75,22 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.setContext(context);
             request.setAttribute(Const.USER_ID, id);
             request.setAttribute(Const.USER_ROLE, new ArrayList<>(user.getAuthorities()).get(0).getAuthority());
+            if (request.getRequestURI().startsWith("/terminal/")) {
+                int clientId = Integer.parseInt(request.getRequestURI().substring(10));
+                if (!isPermissionForTerminal((String) request.getAttribute(Const.USER_ROLE), Integer.parseInt(id), clientId)) {
+                    response.getWriter().write(Result.isNoPermission().toJsonString());
+                    return;
+                }
+            }
         }
         filterChain.doFilter(request, response);
+    }
+    private boolean isPermissionForTerminal(String role, int id, int clientId) {
+        if (role.substring(5).equals(Const.ROLE_ADMIN)) {
+            return true;
+        } else {
+            JSONArray ids = JSONArray.parse(accountMapper.selectById(id).getClients());
+            return ids.contains(clientId);
+        }
     }
 }

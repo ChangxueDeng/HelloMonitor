@@ -80,7 +80,7 @@ setInterval(()=> {
 }, 10000)
 
 function deleteClient(clientId) {
-  ElMessageBox.confirm('确定要删除主机吗？', '提示', {
+  ElMessageBox.confirm('确定要删除此服务器吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -106,8 +106,8 @@ watch(()=> props.id, value => init(value), {immediate:true})
             <i class="fa-solid fa-server"></i>服务器信息
           </div>
           <div>
-            <el-button :icon="Connection" type="primary" plain @click="emits('terminal')">连接此主机</el-button>
-            <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)" :disabled="!store.isAdmin">删除此主机</el-button>
+            <el-button :icon="Connection" type="primary" plain @click="emits('terminal')">连接此服务器</el-button>
+            <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)" :disabled="!store.isAdmin">删除此服务器</el-button>
           </div>
         </div>
 
@@ -167,11 +167,11 @@ watch(()=> props.id, value => init(value), {immediate:true})
           <div>
             <span>硬件配置信息</span>
             <i class="fa-solid fa-microchip"></i>
-            <span >{{`${details.base.cpuCore} CPU核心数 /` }} </span>
+            <span >{{` ${details.base.cpuCore} CPU核心数 / ` }} </span>
             <i class="fa-solid fa-memory"></i>
-            <span >{{`${details.base.memory.toFixed(1)} GB 内存容量 / `}}</span>
+            <span >{{` ${details.base.memory.toFixed(1)} GB 内存容量 / `}}</span>
             <i class="fa-solid fa-hdd"> </i>
-            <span >{{`${details.base.disk.toFixed(1)} GB 硬盘容量`}}</span>
+            <span >{{` ${details.base.disk.toFixed(1)} GB 硬盘容量`}}</span>
           </div>
           <div>
             <span>操作系统</span>

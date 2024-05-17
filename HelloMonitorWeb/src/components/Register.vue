@@ -8,8 +8,8 @@ defineProps({
 
 <template>
 <div class="register">
-  <div class="title"><i class="fa-regular fa-square-plus" />添加新主机</div>
-  <div class="desc">请按照步骤完成新主机添加</div>
+  <div class="title"><i class="fa-regular fa-square-plus" />添加新服务器</div>
+  <div class="desc">请按照步骤完成新服务器添加</div>
   <el-divider style="margin: 10px 0"></el-divider>
   <div class="sub-title">1.部署客户端</div>
   <div class="desc">在需要监控的服务器上运行监控客户端程序，客户端程序依赖于Java17运行环境，请提前安装</div>

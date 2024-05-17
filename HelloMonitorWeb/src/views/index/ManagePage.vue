@@ -9,6 +9,7 @@ import {Plus} from "@element-plus/icons-vue";
 import {useRoute} from "vue-router";
 import {useStore} from "@/store/index.js";
 import Terminal from "@/components/ConnectionCard.vue";
+import ConnectionCard from "@/components/ConnectionCard.vue";
 const store = useStore()
 
 const route = useRoute()
@@ -77,11 +78,11 @@ const refresh = () => {
   <div class="manage-main">
     <div style="display: flex;justify-content: space-between;align-items: center;">
       <div>
-        <div class="title"><i class="fa-solid fa-server"></i>管理主机列表</div>
-        <div class="desc">在这里管理所有主机实例</div>
+        <div class="title"><i class="fa-solid fa-server"></i>管理服务器列表</div>
+        <div class="desc">在这里管理所有服务器实例</div>
       </div>
       <div>
-        <el-button :disabled="!store.isAdmin" :icon="Plus" @click="register.show = true" type="primary">新增主机</el-button>
+        <el-button :disabled="!store.isAdmin" :icon="Plus" @click="register.show = true" type="primary">新增服务器</el-button>
       </div>
     </div>
     <el-divider style="margin: 10px 0"></el-divider>
@@ -96,7 +97,7 @@ const refresh = () => {
     <div class="server-list" v-if="list.length">
       <preview-card v-for="item in filterList" :data="item" :update="getList" @click="showDetail(item.id)"></preview-card>
     </div>
-    <el-empty v-else-if="list.length === 0" description="主机列表为空，立即点击右上角按钮添加新主机！"></el-empty>
+    <el-empty v-else-if="list.length === 0" description="客户端列表为空，立即点击右上角按钮添加客户端！"></el-empty>
     <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="700"
                direction="ttb" style="justify-items: center;" @close="detail.id = -1" :with-header="false">
       <client-details :id="detail.id" :update="getList" @delete="getList" @terminal="openTerminal(detail.id)"></client-details>
@@ -105,20 +106,24 @@ const refresh = () => {
                style="justify-items: center;" :size="350" :with-header="false" @open="refresh()">
       <register :token="register.token"></register>
     </el-drawer>
-    <el-drawer :size="700" v-model="terminals.show" direction="ttb" @close="terminals.show = false"
+    <el-drawer :size="700" v-model="terminals.show" direction="ttb" @close="terminals.show = false; terminals.id = -1"
                style="width: 800px" :close-on-click-modal="false">
       <template #header>
         <div>
           <div style="font-size: 18px; font-weight: bold; color:var(--el-color-primary);">SSH远程连接</div>
           <div style="font-size: 14px;color: grey">远程连接将由服务端完成，在内网环境也可正常使用</div>
+          <el-divider style="margin: 10px 0 0 0"></el-divider>
         </div>
       </template>
-      <terminal :id="terminals.id"></terminal>
+      <connection-card :id="terminals.id"></connection-card>
     </el-drawer>
   </div>
 </template>
 
 <style lang="less" scoped>
+:deep(.el-drawer__header) {
+  margin-bottom: 0;
+}
 :deep(.el-drawer) {
   position: absolute;
   margin: auto auto;

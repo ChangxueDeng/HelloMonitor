@@ -47,11 +47,11 @@ const props = defineProps({
       </div>
 
       <i class="fa-solid fa-microchip"></i>
-      <span style="margin-right: 10px"> {{data.cpuCore}} cpu</span>
+      <span style="margin-right: 10px"> {{` ${data.cpuCore} cpu`}} </span>
       <i class="fa-solid fa-memory"></i>
-      <span style="margin-right: 10px"> {{data.memory.toFixed(1)}}GB</span>
+      <span style="margin-right: 10px"> {{` ${data.memory.toFixed(1)} GB`}}</span>
       <i class="fa-solid fa-hdd"> </i>
-      <span style="margin-right: 10px">  {{ data.disk.toFixed(1)}}GB</span>
+      <span style="margin-right: 10px">  {{` ${data.disk.toFixed(1)} GB`}}</span>
     </div>
     <div class="progress">
       <span>CPU: {{(data.cpuUsage * 100).toFixed(1)}}%</span>
