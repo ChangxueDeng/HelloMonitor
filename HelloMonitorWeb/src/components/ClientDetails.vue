@@ -106,7 +106,7 @@ watch(()=> props.id, value => init(value), {immediate:true})
             <i class="fa-solid fa-server"></i>服务器信息
           </div>
           <div>
-            <el-button :icon="Connection" type="primary" plain @click="emits('terminal')">连接此服务器</el-button>
+            <el-button :icon="Connection" type="primary" plain @click="emits('terminal')" :disabled="!details.online">连接此服务器</el-button>
             <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)" :disabled="!store.isAdmin">删除此服务器</el-button>
           </div>
         </div>

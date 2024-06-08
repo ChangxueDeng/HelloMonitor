@@ -9,7 +9,7 @@ import piniaPluginPersistedstate from "pinia-plugin-persistedstate"
 
 const pinia = createPinia()
 const app = createApp(App)
-axios.defaults.baseURL = 'http://localhost:8081'
+axios.defaults.baseURL = 'http://47.113.144.109:8082'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 app.use(pinia)
 pinia.use(piniaPluginPersistedstate)

@@ -13,10 +13,7 @@ public record Response(int id, int status, Object data, String message) {
     public boolean success() {
         return status == 200;
     }
-    public Response(int status, Object data, String message) {
 
-        this(new Random().nextInt(90000000) + 10000000, status, data, message);
-    }
     public JSONObject asJson() {
         return JSONObject.from(data);
     }

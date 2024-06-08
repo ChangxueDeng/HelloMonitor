@@ -1,10 +1,12 @@
 <script setup>
+import wel from "@/assets/wel.png"
+
 </script>
 
 <template>
   <div style="width: 100vw;height: 100vh; overflow: hidden; display: flex" >
     <div style="flex: 1;">
-      <el-image style="width: 100%;height: 100%" src="src/assets/wallhaven-4o1po7_1920x1080.png"></el-image>
+      <el-image style="width: 100%;height: 100%" :src="wel"></el-image>
     </div>
     <div class="card">
       <router-view v-slot="{Component}" >
