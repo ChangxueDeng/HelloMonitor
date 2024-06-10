@@ -20,5 +20,6 @@ public class ClientDetail {
     private int cpuCore;
     private double memory;
     private double disk;
-    private String ip;
+    private String privateIp;
+    private String publicIp;
 }

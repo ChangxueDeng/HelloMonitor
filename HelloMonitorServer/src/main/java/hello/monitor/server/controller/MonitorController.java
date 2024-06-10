@@ -2,10 +2,7 @@ package hello.monitor.server.controller;
 
 import com.alibaba.fastjson2.JSONArray;
 import hello.monitor.server.entity.Result;
-import hello.monitor.server.entity.vo.request.RenameClientVO;
-import hello.monitor.server.entity.vo.request.RenameNodeVO;
-import hello.monitor.server.entity.vo.request.RuntimeDetailVO;
-import hello.monitor.server.entity.vo.request.SshConnectionVO;
+import hello.monitor.server.entity.vo.request.*;
 import hello.monitor.server.entity.vo.response.*;
 import hello.monitor.server.mapper.AccountMapper;
 import hello.monitor.server.service.ClientService;
@@ -78,6 +75,17 @@ public class MonitorController {
             return Result.isNoPermission();
         }
 
+    }
+    @PostMapping("/modify-public-ip")
+    public Result<Void> modifyPublicIp(@RequestBody @Valid ModifyPublicIpVO vo,
+                                       @RequestAttribute(Const.USER_ROLE) String role,
+                                       @RequestAttribute(Const.USER_ID) int id) {
+        if (this.isPermissionForClient(role, id, vo.getClientId())) {
+            clientService.modifyPublicIp(vo);
+            return Result.success();
+        } else {
+            return Result.isNoPermission();
+        }
     }
 
     /**

@@ -114,7 +114,7 @@ function create() {
                   {{`${item.osName} ${item.osVersion}`}}
                 </div>
                 <div style="font-size: 12px;color: grey">
-                  <span style="margin-right: 10px">公网IP: {{item.ip}}</span>
+                  <span style="margin-right: 10px">公网IP: {{item.publicIp}}</span>
                 </div>
               </div>
             </div>

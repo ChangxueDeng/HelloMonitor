@@ -9,5 +9,5 @@ public class ClientSimpleVO {
     private String location;
     private String osName;
     private String osVersion;
-    private String ip;
+    private String publicIp;
 }

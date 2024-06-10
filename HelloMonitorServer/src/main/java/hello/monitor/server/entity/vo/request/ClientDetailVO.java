@@ -22,5 +22,5 @@ public class ClientDetailVO {
     @NotNull
     private double disk;
     @NotNull
-    private String ip;
+    private String privateIp;
 }

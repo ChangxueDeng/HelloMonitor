@@ -8,7 +8,8 @@ public class ClientPreviewVO {
     private boolean online;
     private String name;
     private String location;
-    private String ip;
+    private String privateIp;
+    private String publicIp;
     private String osName;
     private String osVersion;
     private String cpuName;

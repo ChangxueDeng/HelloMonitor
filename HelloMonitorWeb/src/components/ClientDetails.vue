@@ -1,7 +1,7 @@
 <script setup>
 
 import {computed, watch} from "vue";
-import {reactive} from "vue";
+import {reactive, ref} from "vue";
 import {get, post} from "@/net/index.js"
 import {precessStatus, findByUnit, cpuNameToImage, osNameToIcon, copyIp, rename} from "@/tools/tools.js";
 import {ElMessage, ElMessageBox} from "element-plus";
@@ -30,16 +30,23 @@ const details = reactive({
     list:[]
   },
   editNode: false,
+  editPublicIp: false,
 })
 const nodeEdit = reactive({
   node: '',
   location: ''
 })
+const publicIpEdit = ref('')
 const enableNodeEdit = ()=> {
   details.editNode = true,
   nodeEdit.node = details.base.node,
   nodeEdit.location = details.base.location
 }
+const enablePublicIp = ()=> {
+  details.editPublicIp = true
+  publicIpEdit.value = details.base.publicIp
+}
+
 function updateDetails() {
   props.update()
   init(props.id)
@@ -52,6 +59,16 @@ function submitNodeEdit() {
   }, ()=> {
     details.editNode = false
     ElMessage.success("修改节点信息成功")
+    updateDetails()
+  })
+}
+function submitPublicIpEdit(){
+  post('api/monitor/modify-public-ip', {
+    clientId : details.base.id,
+    publicIp : publicIpEdit.value
+  }, ()=> {
+    details.editPublicIp = false
+    ElMessage.success("修改公网IP信息成功")
     updateDetails()
   })
 }
@@ -91,7 +108,7 @@ function deleteClient(clientId) {
       ElMessage.success("删除成功")
     })
   }).catch(() => {})
-  }
+}
 
 const now = computed(()=> details.runtime.list[details.runtime.list.length - 1]);
 watch(()=> props.id, value => init(value), {immediate:true})
@@ -106,7 +123,7 @@ watch(()=> props.id, value => init(value), {immediate:true})
             <i class="fa-solid fa-server"></i>服务器信息
           </div>
           <div>
-            <el-button :icon="Connection" type="primary" plain @click="emits('terminal')" :disabled="!details.online">连接此服务器</el-button>
+            <el-button :icon="Connection" type="primary" plain @click="emits('terminal')" :disabled="!details.base.online">连接此服务器</el-button>
             <el-button :icon="Delete" type="danger" plain @click="deleteClient(props.id)" :disabled="!store.isAdmin">删除此服务器</el-button>
           </div>
         </div>
@@ -154,10 +171,23 @@ watch(()=> props.id, value => init(value), {immediate:true})
               </div>
             </div>
           </div>
-          <div>
+          <div v-if="!details.editPublicIp">
             <span>公网IP</span>
-            <span>{{details.base.ip}}</span>
-            <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(details.base.ip)"></i>
+            <span>{{details.base.publicIp}}</span>
+            <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(details.base.publicIp)">
+            </i>
+            <span style="margin-left: 10px"><el-link @click.stop="enablePublicIp">修改公网IP</el-link></span>
+          </div>
+          <div v-else>
+            <span>公网IP</span>
+            <el-input v-model="publicIpEdit" placeholder="输入新的公网IP" style="width: 200px"></el-input>
+            <i style="margin-left: 10px" class="fa-solid fa-check interact-item" @click.stop="submitPublicIpEdit" />
+          </div>
+          <div>
+            <span>私网IP</span>
+            <span>{{details.base.privateIp}}</span>
+            <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(details.base.privateIp)">
+            </i>
           </div>
           <div style="display: flex">
             <span>处理器</span>

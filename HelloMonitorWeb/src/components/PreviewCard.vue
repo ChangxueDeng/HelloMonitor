@@ -36,8 +36,12 @@ const props = defineProps({
     </div>
     <el-divider style="margin: 10px 0"></el-divider>
     <div class="network">
-      <span>公网IP: {{data.ip}}</span>
-      <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(props.data.ip)"></i>
+      <span>公网IP: {{data.publicIp}}</span>
+      <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(props.data.publicIp)"></i>
+    </div>
+    <div class="network">
+      <span>私网IP: {{data.privateIp}}</span>
+      <i class="fa-solid fa-copy interact-item" style="margin-left: 2px" @click.stop="copyIp(props.data.privateIp)"></i>
     </div>
 
     <div class="hardware">

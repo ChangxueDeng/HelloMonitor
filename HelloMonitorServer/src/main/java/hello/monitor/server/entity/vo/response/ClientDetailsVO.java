@@ -9,7 +9,8 @@ public class ClientDetailsVO {
     private boolean online;
     private String location;
     private String node;
-    private String ip;
+    private String privateIp;
+    private String publicIp;
     private String osName;
     private String osVersion;
     private String cpuName;

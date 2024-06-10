@@ -55,13 +55,11 @@ public class InfluxDbUtils {
                 """;
         String format = String.format(query, bucket, "-1h", clientId);
         List<FluxTable> tables = client.getQueryApi().query(format, org);
-        System.out.println("tables：" + tables);
         int size = tables.size();
         if (size == 0) {
             return vo;
         }
         List<FluxRecord> records = tables.get(0).getRecords();
-        System.out.println("records：" + records);
         for (int i = 0; i < records.size(); i++) {
             JSONObject object = new JSONObject();
             object.put("timestamp", records.get(i).getTime());

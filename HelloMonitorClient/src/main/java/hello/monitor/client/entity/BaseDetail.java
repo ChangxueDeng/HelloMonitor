@@ -18,5 +18,5 @@ public class BaseDetail {
     private int cpuCore;
     private double memory;
     private double disk;
-    private String ip;
+    private String privateIp;
 }

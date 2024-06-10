@@ -70,10 +70,16 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     public void updateClientDetail(Client client, ClientDetailVO vo) {
         ClientDetail detail = new ClientDetail();
         BeanUtils.copyProperties(vo, detail);
+        System.out.println(vo);
         detail.setId(client.getId());
-        if (Objects.nonNull(detailMapper.selectById(client.getId()))) {
+        ClientDetail detailSelected = detailMapper.selectById(client.getId());
+        if (detailSelected != null) {
+            if (detailSelected.getPublicIp() != null) {
+                detail.setPublicIp(detailSelected.getPublicIp());
+            }
             detailMapper.updateById(detail);
         } else {
+            detail.setPublicIp(detail.getPrivateIp());
             detailMapper.insert(detail);
         }
     }
@@ -91,7 +97,10 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
         return clientIdCache.values().stream().map(client -> {
             ClientPreviewVO vo = new ClientPreviewVO();
             BeanUtils.copyProperties(client, vo);
-            BeanUtils.copyProperties(detailMapper.selectById(client.getId()), vo);
+            ClientDetail detail = detailMapper.selectById(client.getId());
+            if (detail != null) {
+                BeanUtils.copyProperties(detail, vo);
+            }
             RuntimeDetailVO runtime = runtimeDetail.get(client.getId());
             //在线
             if (isOnline(runtime)) {
@@ -161,6 +170,14 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     }
 
     @Override
+    public void modifyPublicIp(ModifyPublicIpVO vo) {
+        detailMapper.update(Wrappers.<ClientDetail>update()
+                .eq("id", vo.getClientId())
+                .set("public_ip", vo.getPublicIp()));
+        this.init();
+    }
+
+    @Override
     public void saveSshConnection(SshConnectionVO vo) {
         Client client = clientIdCache.get(vo.getId());
         if (client != null) {
@@ -174,6 +191,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
         }
     }
 
+
     @Override
     public SshConfigVO getSshConfig(int clientId) {
         ClientSsh ssh = clientSshMapper.selectById(clientId);
@@ -183,7 +201,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
         } else {
             ClientDetail detail = detailMapper.selectById(clientId);
             vo.setId(clientId);
-            vo.setIp(detail.getIp());
+            vo.setIp(detail.getPublicIp());
             vo.setPort(22);
         }
         return vo;

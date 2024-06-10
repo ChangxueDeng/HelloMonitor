@@ -46,7 +46,7 @@ public class MonitorUtils {
                 .setCpuCore(hardware.getProcessor().getLogicalProcessorCount())
                 .setMemory(memory)
                 .setDisk(diskSize)
-                .setIp(ip);
+                .setPrivateIp(ip);
     }
 
     /**
