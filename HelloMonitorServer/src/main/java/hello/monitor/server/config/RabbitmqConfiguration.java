@@ -14,22 +14,40 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class RabbitmqConfiguration {
-    //创建队列
+
+    /**
+     * 创建队列
+     * @return {@link Queue }
+     */
     @Bean(name = "q")
     public Queue emailCampus(){
         return QueueBuilder.nonDurable("email-template").build();
     }
-    //创建交换机
+
+    /**
+     * 创建交换机
+     * @return {@link Exchange }
+     */
     @Bean(name = "e")
     public Exchange exchange(){
         return ExchangeBuilder.directExchange("amq.direct").build();
     }
-    //绑定队列和通道
+
+    /**
+     * 绑定队列和交换机
+     * @param queue 队列
+     * @param exchange 交换机
+     * @return {@link Binding }
+     */
     @Bean
     public Binding binding(@Qualifier("q") Queue queue, @Qualifier("e") Exchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with("send-email").noargs();
     }
-    //消息转换器
+
+    /**
+     * 消息转换器
+     * @return {@link MessageConverter }
+     */
     @Bean
     public MessageConverter messageConverter(){
         return new Jackson2JsonMessageConverter();

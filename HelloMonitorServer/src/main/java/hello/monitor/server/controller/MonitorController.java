@@ -76,6 +76,14 @@ public class MonitorController {
         }
 
     }
+
+    /**
+     * 修改公网Ip
+     * @param vo {@link ModifyPublicIpVO}
+     * @param role 操作用户角色
+     * @param id 用户Id
+     * @return {@link Result }<{@link Void }>
+     */
     @PostMapping("/modify-public-ip")
     public Result<Void> modifyPublicIp(@RequestBody @Valid ModifyPublicIpVO vo,
                                        @RequestAttribute(Const.USER_ROLE) String role,
@@ -137,6 +145,13 @@ public class MonitorController {
             return Result.isNoPermission();
         }
     }
+
+    /**
+     * 客户端注册
+     * 获取注册token
+     * @param role 角色
+     * @return {@link Result }<{@link String }>
+     */
     @GetMapping("/register")
     public Result<String> register(@RequestAttribute(Const.USER_ROLE) String role) {
         if (isRoleAdmin(role)) {
@@ -145,6 +160,14 @@ public class MonitorController {
             return Result.isNoPermission();
         }
     }
+
+    /**
+     * 删除客户端
+     * 删除指定Id的客户端
+     * @param clientId 客户端Id
+     * @param role 操作用户角色
+     * @return {@link Result }<{@link Void }>
+     */
     @GetMapping("/delete")
     public Result<Void> deleteClient(int clientId,@RequestAttribute(Const.USER_ROLE) String role) {
         if (isRoleAdmin(role)) {
@@ -153,8 +176,14 @@ public class MonitorController {
         } else {
             return Result.isNoPermission();
         }
-
     }
+
+    /**
+     * 获取简略客户端列表
+     * 用于创建子用户时分配客户端
+     * @param role 操作角色
+     * @return {@link Result }<{@link List }<{@link ClientSimpleVO }>>
+     */
     @GetMapping("/simple-list")
     public Result<List<ClientSimpleVO>> getClientSimpleList(@RequestAttribute(Const.USER_ROLE) String role) {
         if (isRoleAdmin(role)) {
@@ -163,6 +192,14 @@ public class MonitorController {
             return Result.isNoPermission();
         }
     }
+
+    /**
+     * 保存SSH连接配置
+     * @param vo {@link SshConnectionVO}
+     * @param role 操作用户角色
+     * @param id 用户Id
+     * @return {@link Result }<{@link Void }>
+     */
     @PostMapping("/ssh-sava")
     public Result<Void> savaSshConnection(@RequestBody SshConnectionVO vo,
                                           @RequestAttribute(Const.USER_ROLE) String role,
@@ -174,6 +211,14 @@ public class MonitorController {
             return Result.isNoPermission();
         }
     }
+
+    /**
+     * 获取SSH配置
+     * @param clientId 客户端ID
+     * @param role 操作用户角色
+     * @param id 用户ID
+     * @return {@link Result }<{@link SshConfigVO }>
+     */
     @GetMapping("/ssh")
     public Result<SshConfigVO> sshConfig(int clientId,
                                          @RequestAttribute(Const.USER_ROLE) String role,
@@ -185,12 +230,31 @@ public class MonitorController {
         }
     }
 
+    /**
+     * 获取被授权的客户端列表
+     * @param uid 用户id
+     * @return {@link JSONArray }
+     */
     private JSONArray getPermissionClients(int uid) {
         return JSONArray.parse(accountMapper.selectById(uid).getClients());
     }
+
+    /**
+     * 判断角色是否为管理员
+     * @param role 用户角色字符串
+     * @return boolean 是管理员返回true
+     */
     private boolean isRoleAdmin(String role) {
         return role.substring(5).equals(Const.ROLE_ADMIN);
     }
+
+    /**
+     * 获取用户是否有权限操作指定的客户端
+     * @param role 用户角色字符串
+     * @param uid 用户Id
+     * @param clientId 客户端Id
+     * @return boolean
+     */
     private boolean isPermissionForClient(String role, int uid, int clientId) {
         if (isRoleAdmin(role)) {
             return true;

@@ -27,6 +27,7 @@ public class NetUtils {
     @Resource
     ConnectionConfig config;
     private final HttpClient client = HttpClient.newHttpClient();
+    private int errorCount = 0;
 
     /**
      * 注册客户端
@@ -66,8 +67,15 @@ public class NetUtils {
     public void updateRuntimeDetail(RuntimeDetail runtimeDetail) {
         Response response = this.doPost("/runtime", runtimeDetail);
         if (response.success()) {
+            errorCount = 0;
             log.info("客户端更新实时信息完成!");
         } else {
+            errorCount++;
+            final int maxErrorCount = 10;
+            if (errorCount > maxErrorCount) {
+                log.error("客户端更新实时信息次数过多，将结束运行。");
+                System.exit(0);
+            }
             log.error("客户端更新实时信息失败:{}", response.message());
         }
     }

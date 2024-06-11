@@ -69,7 +69,7 @@ public class SwaggerConfiguration {
      * @return {@link Map}<{@link String}, {@link PathItem}>
      */
     private Map<String, PathItem> authorizePathItems(){
-        Map<String, PathItem> map = new HashMap<>();
+        Map<String, PathItem> map = new HashMap<>(16);
         //login
         map.put("/api/auth/login", new PathItem()
                 .post(new Operation()

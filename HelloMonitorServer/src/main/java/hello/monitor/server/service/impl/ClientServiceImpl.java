@@ -1,12 +1,15 @@
 package hello.monitor.server.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import hello.monitor.server.entity.dto.Account;
 import hello.monitor.server.entity.dto.Client;
 import hello.monitor.server.entity.dto.ClientDetail;
 import hello.monitor.server.entity.dto.ClientSsh;
 import hello.monitor.server.entity.vo.request.*;
 import hello.monitor.server.entity.vo.response.*;
+import hello.monitor.server.mapper.AccountMapper;
 import hello.monitor.server.mapper.ClientDetailMapper;
 import hello.monitor.server.mapper.ClientMapper;
 import hello.monitor.server.mapper.ClientSshMapper;
@@ -22,6 +25,9 @@ import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @author ChangxueDeng
+ */
 @Service
 public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> implements ClientService{
 
@@ -31,7 +37,8 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
     InfluxDbUtils influxDbUtils;
     @Resource
     ClientSshMapper clientSshMapper;
-
+    @Resource
+    AccountMapper accountMapper;
     private String registerToken = this.generateNewToken();
     private final int TOKEN_LENGTH = 24;
     private final Map<Integer, Client> clientIdCache = new ConcurrentHashMap<>();
@@ -153,8 +160,22 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
 
     @Override
     public void deleteClient(int clientId) {
+        //删除client表中的数据
         this.removeById(clientId);
+        //删除client_detail表中的数据
         detailMapper.deleteById(clientId);
+        //删除client_ssh中的数据
+        clientSshMapper.deleteById(clientId);
+        //删除子用户被授权的id
+        List<Account> accounts = accountMapper.selectList(Wrappers.<Account>query().eq("role", Const.ROLE_NORMAL));
+        accounts.forEach(account -> {
+            //获取授权列表
+            JSONArray ids = JSONArray.parse(account.getClients());
+            //删除
+            ids.remove((Integer) clientId);
+            account.setClients(ids.toJSONString());
+            accountMapper.updateById(account);
+        });
         this.init();
         runtimeDetail.remove(clientId);
     }

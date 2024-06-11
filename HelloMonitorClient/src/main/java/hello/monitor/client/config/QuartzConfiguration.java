@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class QuartzConfiguration {
     /**
-     * 创建定时任务
+     * 创建任务描述
      * @return {@link JobDetail}
      */
     @Bean

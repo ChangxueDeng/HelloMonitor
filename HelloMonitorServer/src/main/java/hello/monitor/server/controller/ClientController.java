@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 /**
+ * 客户端与服务端接口
  * @author ChangxueDeng
  */
 @RestController
