@@ -100,7 +100,7 @@ const refresh = () => {
     <el-empty v-else-if="list.length === 0" description="客户端列表为空，立即点击右上角按钮添加客户端！"></el-empty>
     <el-drawer v-if="list.length" v-model="detail.show" :show-close="false" :size="700"
                direction="ttb" style="justify-items: center;" @close="detail.id = -1" :with-header="false">
-      <client-details :id="detail.id" :update="getList" @delete="getList" @terminal="openTerminal(detail.id)"></client-details>
+      <client-details :id="detail.id" :update="getList" @delete="getList();detail.show=false" @terminal="openTerminal(detail.id)"></client-details>
     </el-drawer>
     <el-drawer v-model="register.show" @close="register.show = false" direction="ttb"
                style="justify-items: center;" :size="350" :with-header="false" @open="refresh()">

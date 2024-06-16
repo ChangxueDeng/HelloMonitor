@@ -230,6 +230,7 @@ public class MonitorController {
         }
     }
 
+
     /**
      * 获取被授权的客户端列表
      * @param uid 用户id
@@ -262,4 +263,5 @@ public class MonitorController {
             return getPermissionClients(uid).contains(clientId);
         }
     }
+
 }

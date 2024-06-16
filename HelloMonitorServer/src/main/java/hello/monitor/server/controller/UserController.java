@@ -2,10 +2,12 @@ package hello.monitor.server.controller;
 
 import hello.monitor.server.entity.Result;
 import hello.monitor.server.entity.vo.request.CreateSubAccountVO;
+import hello.monitor.server.entity.vo.request.ModifySubAccessVO;
 import hello.monitor.server.entity.vo.request.UserChangePasswoedVO;
 import hello.monitor.server.entity.vo.request.UserResetEmailVO;
 import hello.monitor.server.entity.vo.response.SubAccountVO;
 import hello.monitor.server.service.AccountService;
+import hello.monitor.server.service.ClientService;
 import hello.monitor.server.utils.Const;
 import hello.monitor.server.utils.ControllerUtils;
 import jakarta.annotation.Resource;
@@ -26,6 +28,8 @@ public class UserController {
     AccountService accountService;
     @Resource
     ControllerUtils controllerUtils;
+    @Resource
+    ClientService clientService;
 
     /**
      * 重置密码
@@ -80,4 +84,18 @@ public class UserController {
     private Result<List<SubAccountVO>> getSubAccountList(){
         return Result.success(accountService.getSubAccountList());
     }
+
+    /**
+     * 重置子用户权限分配
+     * @param id 用户id
+     * @param vo 权限列表
+     * @return {@link Result }<{@link Void }>
+     */
+    @PostMapping("/sub/modify-access")
+    private Result<Void> modifySubAccountAccess(@RequestAttribute(Const.USER_ID) int id,
+                                                @RequestBody @Valid ModifySubAccessVO vo){
+        clientService.modifySubAccess(vo);
+        return Result.success();
+    }
+
 }

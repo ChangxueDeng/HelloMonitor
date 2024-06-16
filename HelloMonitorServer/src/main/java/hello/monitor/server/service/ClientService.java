@@ -25,4 +25,5 @@ public interface ClientService extends IService<Client> {
     void saveSshConnection(SshConnectionVO vo);
     SshConfigVO getSshConfig(int clientId);
     void modifyPublicIp(ModifyPublicIpVO vo);
+    void modifySubAccess(ModifySubAccessVO vo);
 }

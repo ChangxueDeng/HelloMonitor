@@ -2,10 +2,11 @@
 import {ref, reactive} from "vue";
 import {ElMessage} from "element-plus";
 import {post, get} from "@/net/index.js";
-import {Refresh, Switch, Lock, Plus, Delete} from "@element-plus/icons-vue";
+import {Refresh, Switch, Lock, Plus, Delete, Edit} from "@element-plus/icons-vue";
 import router from "@/router/index.js";
 import {logout} from "@/net/index.js";
 import CreateSubAccount from "@/components/CreateSubAccount.vue";
+import ModifySubAccess from "@/components/ModifySubAccess.vue";
 import {useStore} from "@/store/index.js";
 
 const store = useStore()
@@ -110,8 +111,9 @@ function getSimpleList(){
   })
 }
 const createSub = ref(false)
+const modifySubId = ref(0)
 const subAccountList = ref([])
-
+const modifySubAccess = ref(false)
 if (store.isAdmin) {getSimpleList()}
 if (store.isAdmin) {getSubAccountList()}
 function getSubAccountList(){
@@ -187,6 +189,8 @@ function deleteSubAccount(id){
               </div>
               <div style="font-size: 13px;color: grey">{{item.email}}</div>
             </div>
+            <el-button type="success" :icon="Edit" size="small" @click="modifySubAccess = true;modifySubId = item.id">
+              重新分配服务器</el-button>
             <el-button type="danger" :icon="Delete"
                        @click="deleteSubAccount(item.id)" text>删除子账户</el-button>
           </div>
@@ -203,6 +207,9 @@ function deleteSubAccount(id){
     </div>
     <el-drawer v-model="createSub" @close="createSub = false" :with-header="false" :size="400">
       <create-sub-account :clients="simpleList" @create="getSubAccountList();createSub = false"></create-sub-account>
+    </el-drawer>
+    <el-drawer v-model="modifySubAccess" @close="modifySubAccess = false" :with-header="false" :size="400">
+      <modify-sub-access :clients="simpleList" @modify="getSubAccountList();modifySubAccess=false" :id="modifySubId"></modify-sub-access>
     </el-drawer>
     </div>
 </template>

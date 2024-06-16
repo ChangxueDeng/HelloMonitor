@@ -166,6 +166,7 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
         detailMapper.deleteById(clientId);
         //删除client_ssh中的数据
         clientSshMapper.deleteById(clientId);
+        this.init();
         //删除子用户被授权的id
         List<Account> accounts = accountMapper.selectList(Wrappers.<Account>query().eq("role", Const.ROLE_NORMAL));
         accounts.forEach(account -> {
@@ -176,7 +177,6 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
             account.setClients(ids.toJSONString());
             accountMapper.updateById(account);
         });
-        this.init();
         runtimeDetail.remove(clientId);
     }
 
@@ -226,6 +226,17 @@ public class ClientServiceImpl extends ServiceImpl<ClientMapper, Client> impleme
             vo.setPort(22);
         }
         return vo;
+    }
+
+    /**
+     * 重置子用户权限分配
+     * @param vo 权限参数
+     */
+    @Override
+    public void modifySubAccess(ModifySubAccessVO vo) {
+        accountMapper.update(Wrappers.<Account>update()
+                .eq("id", vo.getSubUid())
+                .set("clients", JSONArray.copyOf(vo.getAccessList()).toJSONString()));
     }
 
     @PostConstruct
