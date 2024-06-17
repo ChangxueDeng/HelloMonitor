@@ -45,6 +45,10 @@ function userLogin(){
     }
   })
 }
+function testAccount(){
+  form.username = "test"
+  form.password = "123456"
+}
 </script>
 
 <template>
@@ -52,7 +56,10 @@ function userLogin(){
     <div>
       <div style="text-align: center">
         <h2 style="margin-top: 220px">登陆</h2>
-        <el-text size="large">欢迎进行系统，请输入用户名和密码进行登陆</el-text>
+        <h2>
+          <el-text size="large">欢迎进入Hello服务器监控系统</el-text>
+        </h2>
+        <el-text size="large">请输入用户名和密码进行登陆</el-text>
       </div>
     </div>
     <div style="margin-top: 20px">
@@ -61,7 +68,7 @@ function userLogin(){
           <el-input placeholder="用户名" :prefix-icon="User" v-model="form.username"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input placeholder="密码" :prefix-icon="Lock" v-model="form.password"></el-input>
+          <el-input type="password" placeholder="密码" :prefix-icon="Lock" v-model="form.password"></el-input>
         </el-form-item>
       </el-form>
       <div style="text-align: center; margin-top: 30px" >
@@ -74,7 +81,9 @@ function userLogin(){
           </el-col>
         </el-row>
         <el-button plain type="success" style="width: 190px;" @click="userLogin()" >立即登陆</el-button>
+        <div style="margin-top: 200px"><el-button @click="testAccount">使用测试账户进行登录</el-button></div>
       </div>
+
     </div>
   </div>
 

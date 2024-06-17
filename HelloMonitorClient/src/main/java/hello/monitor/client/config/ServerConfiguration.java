@@ -49,7 +49,7 @@ public class ServerConfiguration{
         do {
             log.info("请输入需要注册的服务端地址，地址类似于 'http://192.168.0.22:8080' 这种写法:");
             address = scanner.nextLine();
-            log.info("请输入服务端生成的用于注册客户端的Token密钥");
+            log.info("请输入服务端生成的用于注册客户端的授权码");
             token = scanner.nextLine();
         } while (!netUtils.registerToServer(address, token));
         ConnectionConfig config = new ConnectionConfig(address, token);
