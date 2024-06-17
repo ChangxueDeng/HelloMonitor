@@ -98,7 +98,6 @@ public class NetUtils {
                     .header("Authorization", token)
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
             return JSONObject.parseObject(response.body()).to(Response.class);
         } catch (Exception e) {
             log.error("在发起服务端请求时出现问题");
@@ -122,7 +121,6 @@ public class NetUtils {
                     .header("Content-Type", "application/json")
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
             return JSONObject.parseObject(response.body()).to(Response.class);
         } catch (Exception e) {
             log.error("在发起服务端请求时出错", e);
